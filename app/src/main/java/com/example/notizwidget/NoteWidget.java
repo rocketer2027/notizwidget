@@ -21,6 +21,15 @@ public class NoteWidget extends AppWidgetProvider {
         manager.notifyAppWidgetViewDataChanged(appWidgetIds, R.id.widget_list);
     }
 
+    @Override
+    public void onReceive(Context context, Intent intent) {
+        super.onReceive(context, intent);
+        // Nach einem App-Update das Widget sofort mit der neuen Darstellung neu zeichnen.
+        if (intent != null && Intent.ACTION_MY_PACKAGE_REPLACED.equals(intent.getAction())) {
+            updateAll(context);
+        }
+    }
+
     /** Groesse des Widgets geaendert: die freie Flaeche unter dem Text neu berechnen. */
     @Override
     public void onAppWidgetOptionsChanged(Context context, AppWidgetManager manager, int appWidgetId, Bundle newOptions) {

@@ -60,6 +60,36 @@ final class Settings {
         p(c).edit().putBoolean("autoBackup", on).apply();
     }
 
+    /** Rhythmus der automatischen Sicherung in Tagen (1 bis 14). */
+    static int backupDays(Context c) {
+        return p(c).getInt("backupDays", 2);
+    }
+
+    static void setBackupDays(Context c, int days) {
+        p(c).edit().putInt("backupDays", Math.max(1, Math.min(14, days))).apply();
+    }
+
+    static int backupHour(Context c) {
+        return p(c).getInt("backupHour", 23);
+    }
+
+    static int backupMinute(Context c) {
+        return p(c).getInt("backupMinute", 0);
+    }
+
+    static void setBackupTime(Context c, int hour, int minute) {
+        p(c).edit().putInt("backupHour", hour).putInt("backupMinute", minute).apply();
+    }
+
+    /** "html" (mit Formatierung) oder "txt" (nur Text). */
+    static String backupFormat(Context c) {
+        return p(c).getString("backupFormat", "html");
+    }
+
+    static void setBackupFormat(Context c, String format) {
+        p(c).edit().putString("backupFormat", format).apply();
+    }
+
     static long lastBackupTime(Context c) {
         return p(c).getLong("lastBackupTime", 0L);
     }

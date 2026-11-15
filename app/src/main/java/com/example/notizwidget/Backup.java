@@ -21,13 +21,14 @@ import java.util.Date;
 import java.util.Locale;
 
 /**
- * Sicherungen als HTML-Datei. Die Datei zeigt die Notiz formatiert im Browser an und enthaelt
- * unsichtbar die genauen Daten, damit sie sich spaeter verlustfrei wieder einspielen laesst.
+ * Sicherungen als HTML-Datei (mit Formatierung) oder als reine Textdatei. Die HTML-Datei zeigt die
+ * Notiz formatiert im Browser an und enthaelt unsichtbar die genauen Daten, damit sie sich spaeter
+ * verlustfrei wieder einspielen laesst.
  */
 final class Backup {
     private static final String MARKER = "<!--NOTIZ-DATA:";
     private static final String FOLDER = "Catatan-Sicherungen";
-    private static final long MIN_GAP_MS = 40L * 60 * 60 * 1000; // ~ jeden 2. Tag
+    private static final long SLACK_MS = 6L * 60 * 60 * 1000; // Toleranz, weil der Wecker nicht auf die Minute feuert
 
     private Backup() {}
 
@@ -85,20 +86,34 @@ final class Backup {
         }
     }
 
-    /** Speichert die Sicherung unter Dokumente/Catatan-Sicherungen (ohne zusaetzliche Berechtigung). */
-    static boolean saveToDocuments(Context c, String html) {
+    /** Speichert unter Dokumente/Catatan-Sicherungen (ohne zusaetzliche Berechtigung). */
+    static boolean saveToDocuments(Context c, String content, boolean asText) {
         try {
-            String name = "Catatan-" + new SimpleDateFormat("yyyy-MM-dd_HH-mm", Locale.GERMANY).format(new Date()) + ".html";
+            String ext = asText ? ".txt" : ".html";
+            String name = "Catatan-" + new SimpleDateFormat("yyyy-MM-dd_HH-mm", Locale.GERMANY).format(new Date()) + ext;
             ContentValues v = new ContentValues();
             v.put(MediaStore.MediaColumns.DISPLAY_NAME, name);
-            v.put(MediaStore.MediaColumns.MIME_TYPE, "text/html");
+            v.put(MediaStore.MediaColumns.MIME_TYPE, asText ? "text/plain" : "text/html");
             v.put(MediaStore.MediaColumns.RELATIVE_PATH, Environment.DIRECTORY_DOCUMENTS + "/" + FOLDER);
             Uri uri = c.getContentResolver().insert(MediaStore.Files.getContentUri("external"), v);
             if (uri == null) return false;
-            return writeToUri(c, uri, html);
+            return writeToUri(c, uri, content);
         } catch (Exception e) {
             return false;
         }
+    }
+
+    /** Sichert die aktuelle Notiz sofort im eingestellten Format. false, wenn leer oder fehlgeschlagen. */
+    static boolean backupNow(Context c) {
+        SpannableStringBuilder note = NoteStore.load(c);
+        if (note.toString().trim().isEmpty()) return false;
+        boolean asText = "txt".equals(Settings.backupFormat(c));
+        String content = asText ? note.toString() : toHtml(note);
+        boolean ok = saveToDocuments(c, content, asText);
+        if (ok) {
+            Settings.setLastBackup(c, System.currentTimeMillis(), String.valueOf(NoteStore.loadRaw(c).hashCode()));
+        }
+        return ok;
     }
 
     // ---------- Automatik ----------
@@ -109,14 +124,17 @@ final class Backup {
                 PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE);
     }
 
-    /** Taeglicher Wecker gegen 23 Uhr; gesichert wird nur, wenn seit der letzten Sicherung ~2 Tage vergangen sind. */
+    /**
+     * Taeglicher Wecker zur eingestellten Uhrzeit. Gesichert wird nur, wenn seit der letzten
+     * Sicherung der eingestellte Rhythmus (Tage) vergangen ist.
+     */
     static void schedule(Context c) {
         try {
             AlarmManager am = (AlarmManager) c.getSystemService(Context.ALARM_SERVICE);
             if (am == null) return;
             Calendar cal = Calendar.getInstance();
-            cal.set(Calendar.HOUR_OF_DAY, 23);
-            cal.set(Calendar.MINUTE, 0);
+            cal.set(Calendar.HOUR_OF_DAY, Settings.backupHour(c));
+            cal.set(Calendar.MINUTE, Settings.backupMinute(c));
             cal.set(Calendar.SECOND, 0);
             cal.set(Calendar.MILLISECOND, 0);
             if (cal.getTimeInMillis() <= System.currentTimeMillis()) cal.add(Calendar.DAY_OF_YEAR, 1);
@@ -142,11 +160,9 @@ final class Backup {
         String raw = NoteStore.loadRaw(c);
         if (NoteStore.deserialize(raw).toString().trim().isEmpty()) return;
         long now = System.currentTimeMillis();
-        if (now - Settings.lastBackupTime(c) < MIN_GAP_MS) return;
-        String hash = String.valueOf(raw.hashCode());
-        if (hash.equals(Settings.lastBackupHash(c))) return; // seit der letzten Sicherung nichts geaendert
-        if (saveToDocuments(c, toHtml(NoteStore.deserialize(raw)))) {
-            Settings.setLastBackup(c, now, hash);
-        }
+        long gap = Settings.backupDays(c) * 24L * 60 * 60 * 1000 - SLACK_MS;
+        if (now - Settings.lastBackupTime(c) < gap) return;
+        if (String.valueOf(raw.hashCode()).equals(Settings.lastBackupHash(c))) return; // nichts geaendert
+        backupNow(c);
     }
 }

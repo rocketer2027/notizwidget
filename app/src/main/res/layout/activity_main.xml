@@ -18,21 +18,36 @@
         android:text="⋮"
         android:textSize="26sp" />
 
-    <EditText
-        android:id="@+id/editor"
+    <!-- Das Textfeld liegt in einer ScrollView: Dadurch scrollt ein kräftiges Wischen mit Schwung
+         bis ganz nach unten, und rechts zeigt ein dezenter Balken die Position. -->
+    <ScrollView
+        android:id="@+id/editor_scroll"
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:layout_weight="1"
-        android:background="@null"
-        android:gravity="top|start"
-        android:hint="Notiz schreiben …"
-        android:importantForAutofill="no"
-        android:inputType="textMultiLine|textCapSentences"
-        android:paddingStart="20dp"
-        android:paddingTop="4dp"
-        android:paddingEnd="20dp"
-        android:paddingBottom="12dp"
-        android:textSize="18sp" />
+        android:fadeScrollbars="false"
+        android:fillViewport="true"
+        android:overScrollMode="ifContentScrolls"
+        android:scrollbarSize="4dp"
+        android:scrollbarStyle="insideOverlay"
+        android:scrollbarThumbVertical="@drawable/widget_scrollbar"
+        android:scrollbars="vertical">
+
+        <EditText
+            android:id="@+id/editor"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="@null"
+            android:gravity="top|start"
+            android:hint="Notiz schreiben …"
+            android:importantForAutofill="no"
+            android:inputType="textMultiLine|textCapSentences"
+            android:paddingStart="20dp"
+            android:paddingTop="4dp"
+            android:paddingEnd="20dp"
+            android:paddingBottom="32dp"
+            android:textSize="18sp" />
+    </ScrollView>
 
     <LinearLayout
         android:id="@+id/toolbar"

@@ -22,7 +22,7 @@
         android:dividerHeight="0dp"
         android:fadeScrollbars="false"
         android:overScrollMode="never"
-        android:scrollbarSize="3dp"
+        android:scrollbarSize="4dp"
         android:scrollbarStyle="insideOverlay"
         android:scrollbarThumbVertical="@drawable/widget_scrollbar"
         android:scrollbars="vertical" />
