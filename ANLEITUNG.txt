@@ -1,0 +1,29 @@
+NotizWidget - APK bauen
+=======================
+
+Variante A: Android Studio (am einfachsten)
+  1. Android Studio installieren (kostenlos, developer.android.com/studio).
+  2. File > Open > diesen Ordner (NotizWidget) auswaehlen, warten bis der Sync fertig ist.
+  3. Build > Build Bundle(s) / APK(s) > Build APK(s)
+  4. Die APK liegt danach in app/build/outputs/apk/debug/app-debug.apk
+
+Variante B: Kommandozeile (Android SDK + JDK 17 muessen installiert sein)
+  ./gradlew assembleDebug        (Windows: gradlew.bat assembleDebug)
+
+APK aufs Handy:
+  - APK per USB/Cloud/E-Mail aufs Handy schicken und antippen
+    (Android fragt einmalig nach "Installation aus unbekannten Quellen").
+
+Widget platzieren:
+  - Homescreen lange gedrueckt halten > Widgets > "Notiz" > 4x4-Widget ablegen.
+  - Auf das Widget tippen, schreiben, App verlassen: wird automatisch gespeichert.
+
+APK online bauen lassen (GitHub, kostenlos, ohne Installation)
+  1. Konto auf github.com anlegen, oben rechts "+" > "New repository", Namen vergeben, "Create".
+  2. "uploading an existing file" waehlen und den GESAMTEN Inhalt dieses Ordners hineinziehen
+     (ZIP vorher entpacken). Wichtig: der versteckte Ordner ".github" muss mit.
+     Falls er fehlt: "Add file" > "Create new file", als Namen ".github/workflows/build.yml"
+     eingeben und den Inhalt der Datei build.yml einfuegen.
+  3. "Commit changes" klicken.
+  4. Oben auf den Reiter "Actions" gehen. Nach ca. 3-6 Minuten ist der Lauf "Build APK" gruen.
+  5. Den Lauf anklicken, ganz unten unter "Artifacts" die APK herunterladen (als ZIP, entpacken).

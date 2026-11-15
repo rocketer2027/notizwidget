@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="#FFF6C8">
+
+    <EditText
+        android:id="@+id/editor"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="@null"
+        android:gravity="top|start"
+        android:hint="@string/editor_hint"
+        android:inputType="textMultiLine|textCapSentences"
+        android:padding="20dp"
+        android:textColor="#2B2711"
+        android:textColorHint="#8A7F4A"
+        android:textSize="18sp" />
+
+</FrameLayout>
