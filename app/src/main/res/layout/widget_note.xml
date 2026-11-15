@@ -2,15 +2,33 @@
 <FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:id="@+id/widget_root"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:background="@drawable/widget_background"
-    android:padding="16dp">
+    android:layout_height="match_parent">
+
+    <ImageView
+        android:id="@+id/widget_bg"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:contentDescription="@null"
+        android:scaleType="fitXY"
+        android:src="@drawable/widget_background" />
+
+    <ListView
+        android:id="@+id/widget_list"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:clipToPadding="false"
+        android:divider="@null"
+        android:dividerHeight="0dp"
+        android:padding="12dp"
+        android:scrollbars="none" />
 
     <TextView
-        android:id="@+id/widget_text"
+        android:id="@+id/widget_empty"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:gravity="top|start"
+        android:padding="16dp"
+        android:text="@string/widget_empty"
         android:textSize="16sp" />
 
 </FrameLayout>

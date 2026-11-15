@@ -1,6 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android">
 
+    <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
+
     <application
         android:allowBackup="true"
         android:icon="@drawable/ic_launcher"
@@ -17,6 +19,30 @@
             </intent-filter>
         </activity>
 
+        <activity
+            android:name=".SettingsActivity"
+            android:exported="false"
+            android:label="Einstellungen" />
+
+        <!-- Erscheint im "Teilen"-Menue und im Menue bei markiertem Text -->
+        <activity
+            android:name=".ShareActivity"
+            android:excludeFromRecents="true"
+            android:exported="true"
+            android:label="Zur Notiz hinzufügen"
+            android:theme="@style/ShareTheme">
+            <intent-filter>
+                <action android:name="android.intent.action.SEND" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <data android:mimeType="text/plain" />
+            </intent-filter>
+            <intent-filter>
+                <action android:name="android.intent.action.PROCESS_TEXT" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <data android:mimeType="text/plain" />
+            </intent-filter>
+        </activity>
+
         <receiver
             android:name=".NoteWidget"
             android:exported="true">
@@ -26,6 +52,19 @@
             <meta-data
                 android:name="android.appwidget.provider"
                 android:resource="@xml/note_widget_info" />
+        </receiver>
+
+        <service
+            android:name=".NoteWidgetService"
+            android:exported="false"
+            android:permission="android.permission.BIND_REMOTEVIEWS" />
+
+        <receiver
+            android:name=".BackupReceiver"
+            android:exported="false">
+            <intent-filter>
+                <action android:name="android.intent.action.BOOT_COMPLETED" />
+            </intent-filter>
         </receiver>
     </application>
 

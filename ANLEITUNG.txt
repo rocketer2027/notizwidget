@@ -1,29 +1,43 @@
-NotizWidget - APK bauen
-=======================
+Notiz Version 2 - Kurzanleitung
+================================
 
-Variante A: Android Studio (am einfachsten)
-  1. Android Studio installieren (kostenlos, developer.android.com/studio).
-  2. File > Open > diesen Ordner (NotizWidget) auswaehlen, warten bis der Sync fertig ist.
-  3. Build > Build Bundle(s) / APK(s) > Build APK(s)
-  4. Die APK liegt danach in app/build/outputs/apk/debug/app-debug.apk
+WICHTIG beim ersten Update von Version 1
+  Version 2 ist mit einem festen Schluessel signiert. Die erste Version war es nicht, deshalb
+  verweigert Android beim ersten Mal das Drueberinstallieren ("App nicht installiert").
+  So geht es ohne Verlust:
+    1. In der alten App alles markieren und kopieren (oder per Teilen an dich schicken).
+    2. Alte App "Notiz" deinstallieren.
+    3. Neue APK installieren, Text einfuegen, Widget neu auf den Homescreen ziehen.
+  Ab dann gehen alle weiteren Updates direkt drueber, ohne Datenverlust.
 
-Variante B: Kommandozeile (Android SDK + JDK 17 muessen installiert sein)
-  ./gradlew assembleDebug        (Windows: gradlew.bat assembleDebug)
+Bedienung
+  - Widget antippen = Notiz schreiben. Beim Verlassen wird automatisch gespeichert.
+  - Im Widget kann man scrollen, ohne die App zu oeffnen. Antippen oeffnet die App.
+  - Text markieren, dann unten: B (fett), I (kursiv), A- / A+ (kleiner / groesser), Farbe.
+    Gilt nur fuer den markierten Text. Nochmal tippen schaltet fett/kursiv wieder aus.
+  - Menue oben rechts (drei Punkte):
+      Einstellungen          Hintergrundfarbe, Transparenz, Textgroesse im Widget,
+                             E-Mail-Adresse, automatische Sicherung an/aus
+      Per E-Mail senden      schickt den Inhalt an deine E-Mail-App (an deine Adresse,
+                             wenn sie in den Einstellungen steht)
+      Erinnerung fuer Markierung
+                             Markierten Text zuerst markieren; es oeffnet sich ein neuer
+                             Kalendereintrag mit dem Text. Dort Datum/Uhrzeit waehlen und
+                             speichern - das Handy erinnert dann daran.
+      Geloeschtes zurueckholen
+                             Liste frueherer Fassungen (die letzten 60). Antippen = zurueck.
+      Sicherung speichern    Datei an einem Ort deiner Wahl ablegen, z. B. in Google Drive.
+      Sicherung einspielen   Datei wieder laden (inkl. Formatierung).
+  - Text aus anderen Apps: dort auf "Teilen" tippen und "Zur Notiz hinzufuegen" waehlen.
+    Der Text steht danach unten in der Notiz. Funktioniert auch ueber das Menue bei
+    markiertem Text ("Zur Notiz hinzufuegen").
+  - Automatische Sicherung: jeden 2. Tag gegen 23 Uhr als HTML-Datei in
+    Dokumente/Notiz-Sicherungen (Dateien-App). Die Datei laesst sich im Browser ansehen und
+    ueber "Sicherung einspielen" wiederherstellen. Bei Google Drive geht das nur von Hand
+    ueber "Sicherung speichern".
 
-APK aufs Handy:
-  - APK per USB/Cloud/E-Mail aufs Handy schicken und antippen
-    (Android fragt einmalig nach "Installation aus unbekannten Quellen").
-
-Widget platzieren:
-  - Homescreen lange gedrueckt halten > Widgets > "Notiz" > 4x4-Widget ablegen.
-  - Auf das Widget tippen, schreiben, App verlassen: wird automatisch gespeichert.
-
-APK online bauen lassen (GitHub, kostenlos, ohne Installation)
-  1. Konto auf github.com anlegen, oben rechts "+" > "New repository", Namen vergeben, "Create".
-  2. "uploading an existing file" waehlen und den GESAMTEN Inhalt dieses Ordners hineinziehen
-     (ZIP vorher entpacken). Wichtig: der versteckte Ordner ".github" muss mit.
-     Falls er fehlt: "Add file" > "Create new file", als Namen ".github/workflows/build.yml"
-     eingeben und den Inhalt der Datei build.yml einfuegen.
-  3. "Commit changes" klicken.
-  4. Oben auf den Reiter "Actions" gehen. Nach ca. 3-6 Minuten ist der Lauf "Build APK" gruen.
-  5. Den Lauf anklicken, ganz unten unter "Artifacts" die APK herunterladen (als ZIP, entpacken).
+APK bauen lassen (GitHub)
+  Wie beim ersten Mal: im bestehenden Repository "Add file" > "Upload files", den ganzen
+  Inhalt dieses Ordners hineinziehen (Ordner ".github" nicht noetig, die build.yml ist schon da),
+  "Commit changes". Danach unter "Actions" auf den gruenen Lauf warten und die APK laden.
+  Alte Dateien mit der Endung .kt koennen im Repository bleiben, sie werden nicht mehr benutzt.

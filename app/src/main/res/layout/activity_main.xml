@@ -1,20 +1,106 @@
 <?xml version="1.0" encoding="utf-8"?>
-<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/root"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="#FFF6C8">
+    android:orientation="vertical">
+
+    <TextView
+        android:id="@+id/btn_menu"
+        android:layout_width="56dp"
+        android:layout_height="48dp"
+        android:layout_gravity="end"
+        android:background="?android:attr/selectableItemBackgroundBorderless"
+        android:clickable="true"
+        android:contentDescription="Menü"
+        android:focusable="false"
+        android:gravity="center"
+        android:text="⋮"
+        android:textSize="26sp" />
 
     <EditText
         android:id="@+id/editor"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
         android:background="@null"
         android:gravity="top|start"
-        android:hint="@string/editor_hint"
+        android:hint="Notiz schreiben …"
+        android:importantForAutofill="no"
         android:inputType="textMultiLine|textCapSentences"
-        android:padding="20dp"
-        android:textColor="#2B2711"
-        android:textColorHint="#8A7F4A"
+        android:paddingStart="20dp"
+        android:paddingTop="4dp"
+        android:paddingEnd="20dp"
+        android:paddingBottom="12dp"
         android:textSize="18sp" />
 
-</FrameLayout>
+    <LinearLayout
+        android:id="@+id/toolbar"
+        android:layout_width="match_parent"
+        android:layout_height="48dp"
+        android:orientation="horizontal">
+
+        <TextView
+            android:id="@+id/tb_bold"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:background="?android:attr/selectableItemBackground"
+            android:clickable="true"
+            android:focusable="false"
+            android:gravity="center"
+            android:text="B"
+            android:textSize="20sp"
+            android:textStyle="bold" />
+
+        <TextView
+            android:id="@+id/tb_italic"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:background="?android:attr/selectableItemBackground"
+            android:clickable="true"
+            android:focusable="false"
+            android:gravity="center"
+            android:text="I"
+            android:textSize="20sp"
+            android:textStyle="italic" />
+
+        <TextView
+            android:id="@+id/tb_smaller"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:background="?android:attr/selectableItemBackground"
+            android:clickable="true"
+            android:focusable="false"
+            android:gravity="center"
+            android:text="A−"
+            android:textSize="18sp" />
+
+        <TextView
+            android:id="@+id/tb_bigger"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:background="?android:attr/selectableItemBackground"
+            android:clickable="true"
+            android:focusable="false"
+            android:gravity="center"
+            android:text="A+"
+            android:textSize="22sp" />
+
+        <TextView
+            android:id="@+id/tb_color"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:background="?android:attr/selectableItemBackground"
+            android:clickable="true"
+            android:focusable="false"
+            android:gravity="center"
+            android:text="Farbe"
+            android:textSize="16sp" />
+    </LinearLayout>
+
+</LinearLayout>

@@ -1,6 +1,5 @@
 plugins {
     id("com.android.application")
-    id("org.jetbrains.kotlin.android")
 }
 
 android {
@@ -9,10 +8,20 @@ android {
 
     defaultConfig {
         applicationId = "com.example.notizwidget"
-        minSdk = 24
+        minSdk = 29
         targetSdk = 34
-        versionCode = 1
-        versionName = "1.0"
+        versionCode = 2
+        versionName = "2.0"
+    }
+
+    // Feste Signatur: Dadurch lassen sich spaetere Updates direkt ueber die alte App installieren.
+    signingConfigs {
+        getByName("debug") {
+            storeFile = file("debug.keystore")
+            storePassword = "android"
+            keyAlias = "androiddebugkey"
+            keyPassword = "android"
+        }
     }
 
     buildTypes {
@@ -24,8 +33,5 @@ android {
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_17
         targetCompatibility = JavaVersion.VERSION_17
-    }
-    kotlinOptions {
-        jvmTarget = "17"
     }
 }

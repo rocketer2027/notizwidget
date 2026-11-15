@@ -1,7 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="app_name">Notiz</string>
-    <string name="editor_hint">Notiz schreiben …</string>
     <string name="widget_empty">Tippen, um zu schreiben</string>
-    <string name="widget_description">Große Notiz für den Homescreen</string>
+    <string name="widget_description">Große Notiz für den Homescreen, scrollbar</string>
 </resources>
