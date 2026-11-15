@@ -12,15 +12,20 @@
         android:scaleType="fitXY"
         android:src="@drawable/widget_background" />
 
+    <!-- Kein Innenabstand an der Liste: Der Abstand steckt in den Eintraegen,
+         damit wirklich jede Stelle antippbar ist. -->
     <ListView
         android:id="@+id/widget_list"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:clipToPadding="false"
         android:divider="@null"
         android:dividerHeight="0dp"
-        android:padding="12dp"
-        android:scrollbars="none" />
+        android:fadeScrollbars="false"
+        android:overScrollMode="never"
+        android:scrollbarSize="3dp"
+        android:scrollbarStyle="insideOverlay"
+        android:scrollbarThumbVertical="@drawable/widget_scrollbar"
+        android:scrollbars="vertical" />
 
     <TextView
         android:id="@+id/widget_empty"

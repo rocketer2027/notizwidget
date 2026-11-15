@@ -12,6 +12,7 @@ import android.provider.CalendarContract;
 import android.text.Editable;
 import android.text.Html;
 import android.text.SpannableStringBuilder;
+import android.text.TextWatcher;
 import android.view.Menu;
 import android.view.View;
 import android.view.Window;
@@ -37,6 +38,9 @@ public class MainActivity extends Activity {
     private TextView menuButton;
     private TextView[] toolButtons;
     private boolean firstLoad = true;
+    private boolean suppressWatch = false; // true, solange die App selbst den Text setzt
+    private int changeStart;
+    private int changeCount;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -60,6 +64,42 @@ public class MainActivity extends Activity {
         color.setOnClickListener(v -> formatSelection(4));
         menuButton.setOnClickListener(this::showMenu);
 
+        // Neuer Text am Anfang einer Zeile bekommt immer das Standardformat. Formatierung bleibt nur
+        // bei dem Text, den man markiert und formatiert hat.
+        editor.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
+
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+                changeStart = start;
+                changeCount = count;
+            }
+
+            @Override
+            public void afterTextChanged(Editable e) {
+                if (suppressWatch || changeCount <= 0) return;
+                int start = changeStart;
+                int end = Math.min(changeStart + changeCount, e.length());
+                if (start < 0 || start >= end) return;
+                int from;
+                if (start == 0 || e.charAt(start - 1) == '\n') {
+                    from = start; // Text beginnt eine neue Zeile
+                } else {
+                    int nl = -1; // eingefuegter Zeilenumbruch: alles dahinter ist neue Zeile
+                    for (int i = start; i < end; i++) {
+                        if (e.charAt(i) == '\n') {
+                            nl = i;
+                            break;
+                        }
+                    }
+                    if (nl < 0) return;
+                    from = nl + 1;
+                }
+                TextFormat.stripAll(e, from, end);
+            }
+        });
+
         if (Settings.autoBackup(this)) Backup.schedule(this);
     }
 
@@ -71,7 +111,7 @@ public class MainActivity extends Activity {
         String stored = NoteStore.loadRaw(this);
         if (!NoteStore.serialize(editor.getText()).equals(stored)) {
             int oldSel = editor.getSelectionStart();
-            editor.setText(NoteStore.deserialize(stored), TextView.BufferType.EDITABLE);
+            setNote(NoteStore.deserialize(stored));
             int len = editor.getText().length();
             editor.setSelection(firstLoad || oldSel < 0 ? len : Math.min(oldSel, len));
         }
@@ -196,7 +236,7 @@ public class MainActivity extends Activity {
         Intent i = new Intent(Intent.ACTION_SENDTO, Uri.parse("mailto:"));
         String to = Settings.email(this);
         if (!to.isEmpty()) i.putExtra(Intent.EXTRA_EMAIL, new String[]{to});
-        i.putExtra(Intent.EXTRA_SUBJECT, "Meine Notiz");
+        i.putExtra(Intent.EXTRA_SUBJECT, "Catatan");
         i.putExtra(Intent.EXTRA_TEXT, plain);
         i.putExtra(Intent.EXTRA_HTML_TEXT,
                 Html.toHtml(editor.getText(), Html.TO_HTML_PARAGRAPH_LINES_CONSECUTIVE));
@@ -241,7 +281,7 @@ public class MainActivity extends Activity {
         new AlertDialog.Builder(this)
                 .setTitle("Frühere Fassung zurückholen")
                 .setItems(labels, (d, which) -> {
-                    editor.setText(NoteStore.deserialize(list.get(which).raw), TextView.BufferType.EDITABLE);
+                    setNote(NoteStore.deserialize(list.get(which).raw));
                     editor.setSelection(editor.getText().length());
                     NoteStore.save(this, editor.getText());
                     toast("Zurückgeholt");
@@ -251,7 +291,7 @@ public class MainActivity extends Activity {
     }
 
     private void saveBackupAs() {
-        String name = "Notiz-" + new SimpleDateFormat("yyyy-MM-dd", Locale.GERMANY).format(new Date()) + ".html";
+        String name = "Catatan-" + new SimpleDateFormat("yyyy-MM-dd", Locale.GERMANY).format(new Date()) + ".html";
         Intent i = new Intent(Intent.ACTION_CREATE_DOCUMENT);
         i.addCategory(Intent.CATEGORY_OPENABLE);
         i.setType("text/html");
@@ -286,13 +326,23 @@ public class MainActivity extends Activity {
                     .setMessage("Die aktuelle Notiz wird ersetzt. Sie bleibt unter „Gelöschtes zurückholen“ erhalten.")
                     .setPositiveButton("Einspielen", (d, w) -> {
                         NoteStore.save(this, editor.getText());
-                        editor.setText(imported, TextView.BufferType.EDITABLE);
+                        setNote(imported);
                         editor.setSelection(editor.getText().length());
                         NoteStore.save(this, editor.getText());
                         toast("Sicherung eingespielt");
                     })
                     .setNegativeButton("Abbrechen", null)
                     .show();
+        }
+    }
+
+    /** Setzt den Notiztext, ohne dass die Formatierungs-Regel fuer neue Zeilen eingreift. */
+    private void setNote(CharSequence content) {
+        suppressWatch = true;
+        try {
+            editor.setText(content, TextView.BufferType.EDITABLE);
+        } finally {
+            suppressWatch = false;
         }
     }
 

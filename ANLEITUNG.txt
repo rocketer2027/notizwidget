@@ -1,4 +1,4 @@
-Notiz Version 2 - Kurzanleitung
+Catatan Version 2.1 - Kurzanleitung
 ================================
 
 WICHTIG beim ersten Update von Version 1
@@ -9,6 +9,13 @@ WICHTIG beim ersten Update von Version 1
     2. Alte App "Notiz" deinstallieren.
     3. Neue APK installieren, Text einfuegen, Widget neu auf den Homescreen ziehen.
   Ab dann gehen alle weiteren Updates direkt drueber, ohne Datenverlust.
+
+Neu in 2.1
+  - Die App heisst jetzt "Catatan".
+  - Im Widget oeffnet ein Tipp an JEDER Stelle die App, auch auf der leeren Flaeche unter dem Text.
+  - Das Widget scrollt fluessig und zeigt rechts einen dezenten Scrollbalken.
+  - Neue Zeilen starten immer mit dem Standardformat. Nur der markierte Text behaelt seine Formatierung.
+  - Installation: Version 2.0 ist schon fest signiert, 2.1 laesst sich direkt drueber installieren.
 
 Bedienung
   - Widget antippen = Notiz schreiben. Beim Verlassen wird automatisch gespeichert.
@@ -32,7 +39,7 @@ Bedienung
     Der Text steht danach unten in der Notiz. Funktioniert auch ueber das Menue bei
     markiertem Text ("Zur Notiz hinzufuegen").
   - Automatische Sicherung: jeden 2. Tag gegen 23 Uhr als HTML-Datei in
-    Dokumente/Notiz-Sicherungen (Dateien-App). Die Datei laesst sich im Browser ansehen und
+    Dokumente/Catatan-Sicherungen (Dateien-App). Die Datei laesst sich im Browser ansehen und
     ueber "Sicherung einspielen" wiederherstellen. Bei Google Drive geht das nur von Hand
     ueber "Sicherung speichern".
 

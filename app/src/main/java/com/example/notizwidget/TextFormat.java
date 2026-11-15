@@ -68,6 +68,14 @@ final class TextFormat {
         if (color != Palette.NO_COLOR) e.setSpan(new ForegroundColorSpan(color), start, end, FLAG);
     }
 
+    /** Entfernt jede Formatierung im Bereich (Standardformat); der Rest des Textes bleibt unveraendert. */
+    static void stripAll(Editable e, int start, int end) {
+        if (start >= end) return;
+        clear(e, StyleSpan.class, start, end, null);
+        clear(e, RelativeSizeSpan.class, start, end, null);
+        clear(e, ForegroundColorSpan.class, start, end, null);
+    }
+
     /** Entfernt Spans im Bereich; Teile ausserhalb des Bereichs bleiben erhalten. */
     private static void clear(Editable e, Class<?> cls, int start, int end, Filter filter) {
         Object[] spans = e.getSpans(start, end, cls);

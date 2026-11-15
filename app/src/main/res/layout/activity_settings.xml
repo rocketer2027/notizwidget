@@ -113,7 +113,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginTop="4dp"
-            android:text="Jeden 2. Tag gegen 23 Uhr als Datei in Dokumente/Notiz-Sicherungen auf dem Handy."
+            android:text="Jeden 2. Tag gegen 23 Uhr als Datei in Dokumente/Catatan-Sicherungen auf dem Handy."
             android:textColor="#666666"
             android:textSize="14sp" />
 

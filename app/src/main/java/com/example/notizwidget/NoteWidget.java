@@ -8,6 +8,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Build;
+import android.os.Bundle;
 import android.util.TypedValue;
 import android.widget.RemoteViews;
 
@@ -18,6 +19,13 @@ public class NoteWidget extends AppWidgetProvider {
     public void onUpdate(Context context, AppWidgetManager manager, int[] appWidgetIds) {
         for (int id : appWidgetIds) manager.updateAppWidget(id, build(context, id));
         manager.notifyAppWidgetViewDataChanged(appWidgetIds, R.id.widget_list);
+    }
+
+    /** Groesse des Widgets geaendert: die freie Flaeche unter dem Text neu berechnen. */
+    @Override
+    public void onAppWidgetOptionsChanged(Context context, AppWidgetManager manager, int appWidgetId, Bundle newOptions) {
+        super.onAppWidgetOptionsChanged(context, manager, appWidgetId, newOptions);
+        manager.notifyAppWidgetViewDataChanged(appWidgetId, R.id.widget_list);
     }
 
     static RemoteViews build(Context c, int appWidgetId) {
@@ -42,6 +50,7 @@ public class NoteWidget extends AppWidgetProvider {
 
         // Tippen irgendwo auf eine Zeile oeffnet die App
         Intent open = new Intent(c, MainActivity.class);
+        open.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
         int mutable = Build.VERSION.SDK_INT >= 31 ? PendingIntent.FLAG_MUTABLE : 0;
         PendingIntent template = PendingIntent.getActivity(
                 c, 0, open, PendingIntent.FLAG_UPDATE_CURRENT | mutable);

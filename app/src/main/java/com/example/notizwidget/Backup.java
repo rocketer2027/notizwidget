@@ -26,7 +26,7 @@ import java.util.Locale;
  */
 final class Backup {
     private static final String MARKER = "<!--NOTIZ-DATA:";
-    private static final String FOLDER = "Notiz-Sicherungen";
+    private static final String FOLDER = "Catatan-Sicherungen";
     private static final long MIN_GAP_MS = 40L * 60 * 60 * 1000; // ~ jeden 2. Tag
 
     private Backup() {}
@@ -37,7 +37,7 @@ final class Backup {
         SpannableStringBuilder sb = new SpannableStringBuilder(text);
         String json = NoteStore.serialize(sb);
         String data = Base64.encodeToString(json.getBytes(StandardCharsets.UTF_8), Base64.NO_WRAP);
-        return "<!DOCTYPE html>\n<html><head><meta charset=\"utf-8\"><title>Notiz</title></head><body>\n"
+        return "<!DOCTYPE html>\n<html><head><meta charset=\"utf-8\"><title>Catatan</title></head><body>\n"
                 + Html.toHtml(sb, Html.TO_HTML_PARAGRAPH_LINES_CONSECUTIVE)
                 + "\n" + MARKER + data + "-->\n</body></html>\n";
     }
@@ -85,10 +85,10 @@ final class Backup {
         }
     }
 
-    /** Speichert die Sicherung unter Dokumente/Notiz-Sicherungen (ohne zusaetzliche Berechtigung). */
+    /** Speichert die Sicherung unter Dokumente/Catatan-Sicherungen (ohne zusaetzliche Berechtigung). */
     static boolean saveToDocuments(Context c, String html) {
         try {
-            String name = "Notiz-" + new SimpleDateFormat("yyyy-MM-dd_HH-mm", Locale.GERMANY).format(new Date()) + ".html";
+            String name = "Catatan-" + new SimpleDateFormat("yyyy-MM-dd_HH-mm", Locale.GERMANY).format(new Date()) + ".html";
             ContentValues v = new ContentValues();
             v.put(MediaStore.MediaColumns.DISPLAY_NAME, name);
             v.put(MediaStore.MediaColumns.MIME_TYPE, "text/html");

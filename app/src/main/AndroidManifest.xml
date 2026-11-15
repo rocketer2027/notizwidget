@@ -29,7 +29,7 @@
             android:name=".ShareActivity"
             android:excludeFromRecents="true"
             android:exported="true"
-            android:label="Zur Notiz hinzufügen"
+            android:label="Zu Catatan hinzufügen"
             android:theme="@style/ShareTheme">
             <intent-filter>
                 <action android:name="android.intent.action.SEND" />
