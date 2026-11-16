@@ -2,7 +2,7 @@
 <ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="#FAFAFA"
+    android:background="?android:attr/colorBackground"
     android:fillViewport="true">
 
     <LinearLayout
@@ -14,8 +14,8 @@
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Einstellungen"
-            android:textColor="#222222"
+            android:text="@string/settings_title"
+            android:textColor="?android:attr/textColorPrimary"
             android:textSize="24sp"
             android:textStyle="bold" />
 
@@ -24,7 +24,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginTop="2dp"
-            android:textColor="#777777"
+            android:textColor="?android:attr/textColorSecondary"
             android:textSize="13sp" />
 
         <!-- ===== Aussehen ===== -->
@@ -40,15 +40,15 @@
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:padding="14dp"
-                android:text="Vorschau\nMilch, Brot, Eier" />
+                android:text="@string/set_preview" />
         </FrameLayout>
 
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginTop="20dp"
-            android:text="Hintergrundfarbe"
-            android:textColor="#222222"
+            android:text="@string/set_bgcolor"
+            android:textColor="?android:attr/textColorPrimary"
             android:textSize="16sp" />
 
         <HorizontalScrollView
@@ -68,7 +68,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginTop="16dp"
-            android:textColor="#222222"
+            android:textColor="?android:attr/textColorPrimary"
             android:textSize="16sp" />
 
         <SeekBar
@@ -82,7 +82,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginTop="16dp"
-            android:textColor="#222222"
+            android:textColor="?android:attr/textColorPrimary"
             android:textSize="16sp" />
 
         <SeekBar
@@ -91,20 +91,42 @@
             android:layout_height="wrap_content"
             android:max="20" />
 
+        <Switch
+            android:id="@+id/switch_dark"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="12dp"
+            android:text="@string/set_dark"
+            android:textColor="?android:attr/textColorPrimary"
+            android:textSize="16sp" />
+
+        <TextView
+            android:id="@+id/btn_language"
+            android:layout_width="wrap_content"
+            android:layout_height="48dp"
+            android:layout_marginTop="4dp"
+            android:background="?android:attr/selectableItemBackground"
+            android:clickable="true"
+            android:focusable="true"
+            android:gravity="center_vertical"
+            android:paddingEnd="16dp"
+            android:textColor="?android:attr/colorAccent"
+            android:textSize="16sp" />
+
         <!-- ===== Automatische Sicherung ===== -->
         <View
             android:layout_width="match_parent"
             android:layout_height="1dp"
             android:layout_marginTop="24dp"
-            android:background="#DDDDDD" />
+            android:background="#66888888" />
 
         <Switch
             android:id="@+id/switch_backup"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="16dp"
-            android:text="Automatische Sicherung"
-            android:textColor="#222222"
+            android:text="@string/set_auto"
+            android:textColor="?android:attr/textColorPrimary"
             android:textSize="18sp"
             android:textStyle="bold" />
 
@@ -113,7 +135,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginTop="12dp"
-            android:textColor="#222222"
+            android:textColor="?android:attr/textColorPrimary"
             android:textSize="16sp" />
 
         <SeekBar
@@ -133,7 +155,7 @@
             android:gravity="center_vertical"
             android:paddingStart="4dp"
             android:paddingEnd="16dp"
-            android:textColor="#1565C0"
+            android:textColor="?android:attr/colorAccent"
             android:textSize="16sp" />
 
         <RadioGroup
@@ -146,15 +168,15 @@
                 android:id="@+id/fmt_html"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="HTML-Datei (mit Formatierung)"
-                android:textColor="#222222" />
+                android:text="@string/fmt_html"
+                android:textColor="?android:attr/textColorPrimary" />
 
             <RadioButton
                 android:id="@+id/fmt_txt"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Textdatei (.txt, nur Text)"
-                android:textColor="#222222" />
+                android:text="@string/fmt_txt"
+                android:textColor="?android:attr/textColorPrimary" />
         </RadioGroup>
 
         <Button
@@ -162,20 +184,40 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginTop="8dp"
-            android:text="Jetzt sichern" />
+            android:text="@string/btn_backup_now" />
 
         <Button
             android:id="@+id/btn_test_auto"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Automatik testen (in ca. 1 Minute)" />
+            android:text="@string/btn_test_auto" />
+
+        <TextView
+            android:id="@+id/label_keep"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="12dp"
+            android:textColor="?android:attr/textColorPrimary"
+            android:textSize="16sp" />
+
+        <SeekBar
+            android:id="@+id/seek_keep"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:max="49" />
+
+        <Button
+            android:id="@+id/btn_cleanup"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/btn_cleanup" />
 
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginTop="8dp"
-            android:text="Gespeichert wird im Ordner Dokumente/Catatan-Sicherungen auf dem Handy. Für Google Drive: im Menü der Notiz „Sicherung speichern …“ wählen und dort Drive als Ablageort auswählen. Bei jeder automatischen Sicherung zeigt Catatan eine Benachrichtigung. Kommt nichts an: In den Android-Einstellungen unter Apps → Catatan → Akku „Nicht eingeschränkt“ wählen und Benachrichtigungen erlauben."
-            android:textColor="#666666"
+            android:text="@string/set_backup_hint"
+            android:textColor="?android:attr/textColorSecondary"
             android:textSize="14sp" />
 
         <!-- ===== E-Mail ===== -->
@@ -183,14 +225,14 @@
             android:layout_width="match_parent"
             android:layout_height="1dp"
             android:layout_marginTop="24dp"
-            android:background="#DDDDDD" />
+            android:background="#66888888" />
 
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginTop="16dp"
-            android:text="Meine E-Mail-Adresse (für „Per E-Mail senden“)"
-            android:textColor="#222222"
+            android:text="@string/set_email_label"
+            android:textColor="?android:attr/textColorPrimary"
             android:textSize="16sp" />
 
         <EditText
@@ -200,7 +242,7 @@
             android:hint="name@beispiel.de"
             android:importantForAutofill="no"
             android:inputType="textEmailAddress"
-            android:textColor="#222222" />
+            android:textColor="?android:attr/textColorPrimary" />
 
     </LinearLayout>
 </ScrollView>

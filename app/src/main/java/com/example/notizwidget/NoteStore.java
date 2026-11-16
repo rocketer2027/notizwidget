@@ -68,6 +68,7 @@ final class NoteStore {
         boolean changed = !raw.equals(loadRaw(c)) || !p.contains(KEY);
         if (!changed) return;
         p.edit().putString(KEY, raw).apply();
+        Settings.setLastEdit(c, System.currentTimeMillis());
         addHistory(c, raw);
         NoteWidget.updateAll(c);
     }

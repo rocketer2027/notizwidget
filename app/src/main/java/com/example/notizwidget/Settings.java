@@ -13,8 +13,57 @@ final class Settings {
         return c.getSharedPreferences("settings", Context.MODE_PRIVATE);
     }
 
-    static int bgColor(Context c) {
+    /** Die vom Nutzer gewaehlte Farbe (unabhaengig vom Dunkelmodus). */
+    static int rawBgColor(Context c) {
         return p(c).getInt("bg", DEFAULT_BG) | 0xFF000000;
+    }
+
+    /** Tatsaechlich verwendeter Hintergrund: im Dunkelmodus die gewaehlte Farbe stark abgedunkelt. */
+    static int bgColor(Context c) {
+        int raw = rawBgColor(c);
+        if (!darkMode(c)) return raw;
+        int r = (int) (((raw >> 16) & 0xFF) * 0.2f);
+        int g = (int) (((raw >> 8) & 0xFF) * 0.2f);
+        int b = (int) ((raw & 0xFF) * 0.2f);
+        return 0xFF000000 | (r << 16) | (g << 8) | b;
+    }
+
+    static boolean darkMode(Context c) {
+        return p(c).getBoolean("dark", false);
+    }
+
+    static void setDarkMode(Context c, boolean on) {
+        p(c).edit().putBoolean("dark", on).apply();
+    }
+
+    static int themeRes(Context c) {
+        return darkMode(c) ? R.style.AppThemeDark : R.style.AppTheme;
+    }
+
+    /** "de", "en", "id" oder "jv". */
+    static String language(Context c) {
+        return p(c).getString("lang", "de");
+    }
+
+    static void setLanguage(Context c, String code) {
+        p(c).edit().putString("lang", code).apply();
+    }
+
+    /** Wie viele Sicherungen maximal behalten werden (1 bis 50). */
+    static int maxBackups(Context c) {
+        return Math.max(1, Math.min(50, p(c).getInt("maxBackups", 15)));
+    }
+
+    static void setMaxBackups(Context c, int n) {
+        p(c).edit().putInt("maxBackups", Math.max(1, Math.min(50, n))).apply();
+    }
+
+    static long lastEdit(Context c) {
+        return p(c).getLong("lastEdit", 0L);
+    }
+
+    static void setLastEdit(Context c, long time) {
+        p(c).edit().putLong("lastEdit", time).apply();
     }
 
     static void setBgColor(Context c, int color) {

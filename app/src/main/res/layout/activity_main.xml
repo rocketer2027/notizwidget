@@ -5,18 +5,114 @@
     android:layout_height="match_parent"
     android:orientation="vertical">
 
-    <TextView
-        android:id="@+id/btn_menu"
-        android:layout_width="56dp"
+    <LinearLayout
+        android:layout_width="match_parent"
         android:layout_height="48dp"
-        android:layout_gravity="end"
-        android:background="?android:attr/selectableItemBackgroundBorderless"
-        android:clickable="true"
-        android:contentDescription="Menü"
-        android:focusable="false"
-        android:gravity="center"
-        android:text="⋮"
-        android:textSize="26sp" />
+        android:gravity="center_vertical"
+        android:orientation="horizontal">
+
+        <!-- Zeitstempel: dezent, damit die Oberfläche ruhig bleibt -->
+        <TextView
+            android:id="@+id/last_edit"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:alpha="0.55"
+            android:ellipsize="end"
+            android:paddingStart="20dp"
+            android:paddingEnd="8dp"
+            android:singleLine="true"
+            android:textSize="11sp" />
+
+        <ImageView
+            android:id="@+id/btn_search"
+            android:layout_width="44dp"
+            android:layout_height="48dp"
+            android:background="?android:attr/selectableItemBackgroundBorderless"
+            android:contentDescription="@string/cd_search"
+            android:padding="12dp"
+            android:src="@drawable/ic_search" />
+
+        <ImageView
+            android:id="@+id/btn_mic"
+            android:layout_width="44dp"
+            android:layout_height="48dp"
+            android:background="?android:attr/selectableItemBackgroundBorderless"
+            android:contentDescription="@string/cd_mic"
+            android:padding="12dp"
+            android:src="@drawable/ic_mic" />
+
+        <TextView
+            android:id="@+id/btn_menu"
+            android:layout_width="48dp"
+            android:layout_height="48dp"
+            android:background="?android:attr/selectableItemBackgroundBorderless"
+            android:clickable="true"
+            android:contentDescription="@string/cd_menu"
+            android:focusable="false"
+            android:gravity="center"
+            android:text="⋮"
+            android:textSize="26sp" />
+    </LinearLayout>
+
+    <!-- Suchleiste: nur sichtbar, wenn man über die Lupe sucht -->
+    <LinearLayout
+        android:id="@+id/search_bar"
+        android:layout_width="match_parent"
+        android:layout_height="44dp"
+        android:gravity="center_vertical"
+        android:orientation="horizontal"
+        android:paddingStart="16dp"
+        android:visibility="gone">
+
+        <EditText
+            android:id="@+id/search_input"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:hint="@string/search_hint"
+            android:imeOptions="actionSearch"
+            android:importantForAutofill="no"
+            android:inputType="text"
+            android:singleLine="true"
+            android:textSize="16sp" />
+
+        <TextView
+            android:id="@+id/search_prev"
+            android:layout_width="44dp"
+            android:layout_height="match_parent"
+            android:background="?android:attr/selectableItemBackgroundBorderless"
+            android:clickable="true"
+            android:contentDescription="@string/cd_prev"
+            android:focusable="false"
+            android:gravity="center"
+            android:text="▲"
+            android:textSize="16sp" />
+
+        <TextView
+            android:id="@+id/search_next"
+            android:layout_width="44dp"
+            android:layout_height="match_parent"
+            android:background="?android:attr/selectableItemBackgroundBorderless"
+            android:clickable="true"
+            android:contentDescription="@string/cd_next"
+            android:focusable="false"
+            android:gravity="center"
+            android:text="▼"
+            android:textSize="16sp" />
+
+        <TextView
+            android:id="@+id/search_close"
+            android:layout_width="44dp"
+            android:layout_height="match_parent"
+            android:background="?android:attr/selectableItemBackgroundBorderless"
+            android:clickable="true"
+            android:contentDescription="@string/cd_close"
+            android:focusable="false"
+            android:gravity="center"
+            android:text="✕"
+            android:textSize="16sp" />
+    </LinearLayout>
 
     <!-- Das Textfeld liegt in einer ScrollView: Dadurch scrollt ein kräftiges Wischen mit Schwung
          bis ganz nach unten, und rechts zeigt ein dezenter Balken die Position. -->
@@ -34,13 +130,13 @@
         android:scrollbarTrackVertical="@drawable/widget_scrolltrack"
         android:scrollbars="vertical">
 
-        <EditText
+        <com.example.notizwidget.SelectionEditText
             android:id="@+id/editor"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:background="@null"
             android:gravity="top|start"
-            android:hint="Notiz schreiben …"
+            android:hint="@string/note_hint"
             android:importantForAutofill="no"
             android:inputType="textMultiLine|textCapSentences"
             android:paddingStart="20dp"
@@ -88,7 +184,7 @@
             android:layout_height="match_parent"
             android:layout_weight="1"
             android:clickable="true"
-            android:contentDescription="Unterstreichen"
+            android:contentDescription="@string/cd_underline"
             android:focusable="false"
             android:foreground="?android:attr/selectableItemBackground"
             android:gravity="center"
@@ -116,7 +212,7 @@
             android:clickable="true"
             android:focusable="false"
             android:gravity="center"
-            android:text="Farbe"
+            android:text="@string/tb_color"
             android:textSize="16sp" />
     </LinearLayout>
 

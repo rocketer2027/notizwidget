@@ -1,4 +1,4 @@
-Catatan Version 2.6 - Kurzanleitung
+Catatan Version 2.7 - Kurzanleitung
 ================================
 
 WICHTIG beim ersten Update von Version 1
@@ -9,6 +9,18 @@ WICHTIG beim ersten Update von Version 1
     2. Alte App "Notiz" deinstallieren.
     3. Neue APK installieren, Text einfuegen, Widget neu auf den Homescreen ziehen.
   Ab dann gehen alle weiteren Updates direkt drueber, ohne Datenverlust.
+
+Neu in 2.7
+  - Groessen-Knopf: Markierst du Text, zeigt er automatisch dessen Groesse. Ohne Markierung steht in der
+    Liste beim eingestellten Wert "(Standard)", bei Markierung "(aktuell)".
+  - Suche: Lupe oben rechts. Pfeile springen zum vorherigen/naechsten Treffer, X schliesst die Suche.
+  - Mikrofon oben: tippen, sprechen, der Text wird an der Cursorposition eingefuegt (nutzt die
+    Spracheingabe des Handys; Format wie bei normal getipptem Text).
+  - Zeitstempel "Zuletzt bearbeitet" ganz oben links, klein und blass.
+  - Einstellungen: Dunkelmodus, Sprache (Deutsch, English, Bahasa Indonesia, Basa Jawa),
+    wie viele Sicherungen behalten werden (1-50, Standard 15), und "Alte Sicherungen aufraeumen".
+    Nach jeder Sicherung werden aeltere automatisch geloescht, sodass nur die eingestellte Zahl bleibt.
+  - Dunkelmodus dunkelt die gewaehlte Hintergrundfarbe stark ab (Widget und App).
 
 Neu in 2.6
   - Neuer Knopf U zum Unterstreichen (gleiche Regeln: mit Markierung nur dafuer, sonst fuer neuen Text).
@@ -43,7 +55,7 @@ Neu in 2.2
     zeigt ein dezenter Balken die Position. Ein Tipp auf die leere Flaeche unter dem Text setzt den Cursor.
   - Einstellungen > Automatische Sicherung: Schalter, Rhythmus (jeden Tag bis alle 14 Tage), Uhrzeit,
     Format (HTML mit Formatierung oder Textdatei) und "Jetzt sichern".
-  - Oben in den Einstellungen steht die installierte Version. Wenn dort nicht "2.6" steht, ist eine alte
+  - Oben in den Einstellungen steht die installierte Version. Wenn dort nicht "2.7" steht, ist eine alte
     APK installiert.
   - Nach einem Update zeichnet sich das Widget automatisch neu. Sieht es trotzdem noch alt aus
     (kein Scrollbalken rechts): Widget einmal vom Homescreen entfernen und neu hinzufuegen.

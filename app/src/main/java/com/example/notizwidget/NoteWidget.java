@@ -54,6 +54,7 @@ public class NoteWidget extends AppWidgetProvider {
 
         // Hinweis bei leerer Notiz
         int tc = Palette.textColorFor(bg);
+        rv.setTextViewText(R.id.widget_empty, Lang.wrap(c).getString(R.string.widget_empty));
         rv.setTextColor(R.id.widget_empty, (tc & 0x00FFFFFF) | 0xB0000000);
         rv.setTextViewTextSize(R.id.widget_empty, TypedValue.COMPLEX_UNIT_SP, Settings.widgetTextSize(c));
 

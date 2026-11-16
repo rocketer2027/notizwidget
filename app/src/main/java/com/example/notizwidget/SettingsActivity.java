@@ -1,6 +1,8 @@
 package com.example.notizwidget;
 
 import android.app.Activity;
+import android.app.AlertDialog;
+import android.content.Context;
 import android.app.TimePickerDialog;
 import android.content.pm.PackageInfo;
 import android.graphics.Color;
@@ -28,12 +30,21 @@ public class SettingsActivity extends Activity {
     private TextView labelTransp;
     private TextView labelSize;
     private TextView labelDays;
+    private TextView labelKeep;
+    private TextView buttonLanguage;
     private TextView buttonTime;
     private EditText editEmail;
 
     @Override
+    protected void attachBaseContext(Context base) {
+        super.attachBaseContext(Lang.wrap(base));
+    }
+
+    @Override
     protected void onCreate(Bundle savedInstanceState) {
+        setTheme(Settings.themeRes(this));
         super.onCreate(savedInstanceState);
+        setTitle(getString(R.string.settings_title));
         setContentView(R.layout.activity_settings);
 
         swatchRow = findViewById(R.id.swatch_row);
@@ -42,6 +53,11 @@ public class SettingsActivity extends Activity {
         labelSize = findViewById(R.id.label_size);
         labelDays = findViewById(R.id.label_days);
         buttonTime = findViewById(R.id.btn_time);
+        labelKeep = findViewById(R.id.label_keep);
+        buttonLanguage = findViewById(R.id.btn_language);
+        SeekBar seekKeep = findViewById(R.id.seek_keep);
+        Switch switchDark = findViewById(R.id.switch_dark);
+        Button buttonCleanup = findViewById(R.id.btn_cleanup);
         editEmail = findViewById(R.id.edit_email);
         SeekBar seekTransp = findViewById(R.id.seek_transp);
         SeekBar seekSize = findViewById(R.id.seek_size);
@@ -55,7 +71,7 @@ public class SettingsActivity extends Activity {
         // Version anzeigen, damit man sieht, welche Fassung installiert ist.
         try {
             PackageInfo pi = getPackageManager().getPackageInfo(getPackageName(), 0);
-            versionLabel.setText("Catatan Version " + pi.versionName + " (Build " + pi.getLongVersionCode() + ")");
+            versionLabel.setText(getString(R.string.version_fmt, pi.versionName, pi.getLongVersionCode()));
         } catch (Exception e) {
             versionLabel.setText("Catatan");
         }
@@ -65,6 +81,8 @@ public class SettingsActivity extends Activity {
         seekSize.setProgress(Settings.widgetTextSize(this) - MIN_SIZE);
         seekDays.setProgress(Settings.backupDays(this) - 1);
         editEmail.setText(Settings.email(this));
+        seekKeep.setProgress(Settings.maxBackups(this) - 1);
+        switchDark.setChecked(Settings.darkMode(this));
         switchBackup.setChecked(Settings.autoBackup(this));
         radioFormat.check("txt".equals(Settings.backupFormat(this)) ? R.id.fmt_txt : R.id.fmt_html);
 
@@ -92,6 +110,47 @@ public class SettingsActivity extends Activity {
             }
         });
 
+        seekKeep.setOnSeekBarChangeListener(new SimpleSeek() {
+            @Override
+            public void onProgressChanged(SeekBar bar, int progress, boolean fromUser) {
+                Settings.setMaxBackups(SettingsActivity.this, progress + 1);
+                updateBackupLabels();
+            }
+        });
+
+        buttonCleanup.setOnClickListener(v -> {
+            final int keep = Settings.maxBackups(this);
+            new AlertDialog.Builder(this)
+                    .setTitle(getString(R.string.cleanup_title))
+                    .setMessage(getString(R.string.cleanup_message, keep))
+                    .setPositiveButton(getString(R.string.cleanup_ok), (d, w) -> {
+                        int n = Backup.prune(this, keep);
+                        Toast.makeText(this, getString(R.string.cleanup_done, n), Toast.LENGTH_LONG).show();
+                    })
+                    .setNegativeButton(getString(R.string.cancel), null)
+                    .show();
+        });
+
+        switchDark.setOnCheckedChangeListener((button, checked) -> {
+            Settings.setDarkMode(this, checked);
+            NoteWidget.updateAll(this);
+            recreate();
+        });
+
+        buttonLanguage.setOnClickListener(v -> {
+            String[] names = new String[Lang.NAMES.length];
+            for (int i = 0; i < names.length; i++) names[i] = getString(Lang.NAMES[i]);
+            new AlertDialog.Builder(this)
+                    .setTitle(getString(R.string.set_language_title))
+                    .setSingleChoiceItems(names, Lang.indexOf(this), (d, which) -> {
+                        d.dismiss();
+                        Settings.setLanguage(this, Lang.CODES[which]);
+                        NoteWidget.updateAll(this);
+                        recreate();
+                    })
+                    .show();
+        });
+
         buttonTime.setOnClickListener(v -> new TimePickerDialog(this, (view, hour, minute) -> {
             Settings.setBackupTime(this, hour, minute);
             updateBackupLabels();
@@ -114,15 +173,14 @@ public class SettingsActivity extends Activity {
         buttonNow.setOnClickListener(v -> {
             String name = Backup.backupNow(this, false);
             Toast.makeText(this, name != null
-                    ? "Gesichert: Dokumente/Catatan-Sicherungen/" + name
-                    : "Nichts gesichert (Notiz leer oder Speichern fehlgeschlagen)", Toast.LENGTH_LONG).show();
+                    ? getString(R.string.backup_done_toast, name)
+                    : getString(R.string.backup_none_toast), Toast.LENGTH_LONG).show();
         });
 
         buttonTest.setOnClickListener(v -> {
             Backup.requestNotificationPermission(this, false);
             Backup.scheduleTest(this);
-            Toast.makeText(this, "Test gestartet: In etwa 1 Minute wird gesichert und eine Benachrichtigung gezeigt. "
-                    + "Der Bildschirm darf gesperrt sein.", Toast.LENGTH_LONG).show();
+            Toast.makeText(this, getString(R.string.test_started), Toast.LENGTH_LONG).show();
         });
 
         buildSwatches();
@@ -144,7 +202,7 @@ public class SettingsActivity extends Activity {
 
     private void buildSwatches() {
         swatchRow.removeAllViews();
-        int current = Settings.bgColor(this);
+        int current = Settings.rawBgColor(this);
         for (final int color : Palette.BG) {
             swatchRow.addView(Palette.swatch(this, color, color == current, 44, new View.OnClickListener() {
                 @Override
@@ -163,15 +221,16 @@ public class SettingsActivity extends Activity {
         preview.setBackgroundColor(Color.argb(alpha, Color.red(bg), Color.green(bg), Color.blue(bg)));
         preview.setTextColor(Palette.textColorFor(bg));
         preview.setTextSize(TypedValue.COMPLEX_UNIT_SP, Settings.widgetTextSize(this));
-        labelTransp.setText("Transparenz: " + Settings.transparency(this) + " %");
-        labelSize.setText("Textgröße im Widget: " + Settings.widgetTextSize(this) + " sp");
+        labelTransp.setText(getString(R.string.set_transp, Settings.transparency(this)));
+        labelSize.setText(getString(R.string.set_textsize, Settings.widgetTextSize(this)));
     }
 
     private void updateBackupLabels() {
         int days = Settings.backupDays(this);
-        labelDays.setText(days == 1 ? "Rhythmus: jeden Tag" : "Rhythmus: alle " + days + " Tage");
-        buttonTime.setText(String.format(Locale.GERMANY, "Uhrzeit: %02d:%02d  (tippen zum Ändern)",
-                Settings.backupHour(this), Settings.backupMinute(this)));
+        labelDays.setText(days == 1 ? getString(R.string.set_every_day) : getString(R.string.set_every_n, days));
+        labelKeep.setText(getString(R.string.set_keep, Settings.maxBackups(this)));
+        buttonLanguage.setText(getString(R.string.set_language, getString(Lang.NAMES[Lang.indexOf(this)])));
+        buttonTime.setText(getString(R.string.set_time, Settings.backupHour(this), Settings.backupMinute(this)));
     }
 
     /** SeekBar-Listener, bei dem man nur onProgressChanged ueberschreiben muss. */

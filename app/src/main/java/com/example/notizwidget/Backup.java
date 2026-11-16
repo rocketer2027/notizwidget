@@ -8,7 +8,9 @@ import android.app.NotificationChannel;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.content.ContentValues;
+import android.content.ContentUris;
 import android.content.Context;
+import android.database.Cursor;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.net.Uri;
@@ -126,7 +128,34 @@ final class Backup {
         if (name != null && countForSchedule) {
             Settings.setLastBackup(c, System.currentTimeMillis(), "");
         }
+        if (name != null) prune(c, Settings.maxBackups(c));
         return name;
+    }
+
+    /** Loescht die aeltesten Sicherungen im Sicherungsordner, bis nur noch "keep" uebrig sind. Gibt die Zahl der geloeschten zurueck. */
+    static int prune(Context c, int keep) {
+        int deleted = 0;
+        Uri base = MediaStore.Files.getContentUri("external");
+        try (Cursor cur = c.getContentResolver().query(base,
+                new String[]{MediaStore.MediaColumns._ID},
+                MediaStore.MediaColumns.RELATIVE_PATH + " LIKE ?",
+                new String[]{Environment.DIRECTORY_DOCUMENTS + "/" + FOLDER + "%"},
+                MediaStore.MediaColumns.DATE_ADDED + " DESC, " + MediaStore.MediaColumns._ID + " DESC")) {
+            int i = 0;
+            while (cur != null && cur.moveToNext()) {
+                i++;
+                if (i <= keep) continue;
+                try {
+                    if (c.getContentResolver().delete(ContentUris.withAppendedId(base, cur.getLong(0)), null, null) > 0)
+                        deleted++;
+                } catch (Exception ignored) {
+                    // z. B. Datei gehoert nicht dieser App: ueberspringen
+                }
+            }
+        } catch (Exception ignored) {
+            // Aufraeumen ist ein Zusatz
+        }
+        return deleted;
     }
 
     // ---------- Automatik ----------
@@ -185,16 +214,17 @@ final class Backup {
     static void runAuto(Context c, boolean force) {
         if (!force && !Settings.autoBackup(c)) return;
         if (NoteStore.deserialize(NoteStore.loadRaw(c)).toString().trim().isEmpty()) {
-            if (force) notifyResult(c, "Nichts gesichert: Die Notiz ist leer.");
+            if (force) notifyResult(c, Lang.wrap(c).getString(R.string.notif_empty));
             return;
         }
         long now = System.currentTimeMillis();
         long gap = Settings.backupDays(c) * 24L * 60 * 60 * 1000 - SLACK_MS;
         if (!force && now - Settings.lastBackupTime(c) < gap) return; // noch nicht wieder dran
         String name = backupNow(c, !force);
+        Context lc = Lang.wrap(c);
         notifyResult(c, name != null
-                ? "Automatische Sicherung gespeichert: " + name
-                : "Automatische Sicherung fehlgeschlagen.");
+                ? lc.getString(R.string.notif_saved, name)
+                : lc.getString(R.string.notif_failed));
     }
 
     // ---------- Benachrichtigung ----------
@@ -215,7 +245,7 @@ final class Backup {
         try {
             NotificationManager nm = c.getSystemService(NotificationManager.class);
             if (nm == null) return;
-            nm.createNotificationChannel(new NotificationChannel(CHANNEL, "Sicherung", NotificationManager.IMPORTANCE_DEFAULT));
+            nm.createNotificationChannel(new NotificationChannel(CHANNEL, Lang.wrap(c).getString(R.string.notif_channel), NotificationManager.IMPORTANCE_DEFAULT));
             Intent open = new Intent(c, MainActivity.class).addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
             PendingIntent pi = PendingIntent.getActivity(c, 2, open,
                     PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE);

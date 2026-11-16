@@ -23,14 +23,14 @@
         <activity
             android:name=".SettingsActivity"
             android:exported="false"
-            android:label="Einstellungen" />
+            android:label="@string/settings_title" />
 
         <!-- Erscheint im "Teilen"-Menue und im Menue bei markiertem Text -->
         <activity
             android:name=".ShareActivity"
             android:excludeFromRecents="true"
             android:exported="true"
-            android:label="Zu Catatan hinzufügen"
+            android:label="@string/share_label"
             android:theme="@style/ShareTheme">
             <intent-filter>
                 <action android:name="android.intent.action.SEND" />

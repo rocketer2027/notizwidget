@@ -87,10 +87,10 @@ final class Palette {
             }));
         }
         AlertDialog.Builder b = new AlertDialog.Builder(a)
-                .setTitle("Textfarbe")
+                .setTitle(a.getString(R.string.color_title))
                 .setView(sv)
-                .setNeutralButton("Standard", (d, w) -> cb.onColor(NO_COLOR))
-                .setNegativeButton("Abbrechen", null);
+                .setNeutralButton(a.getString(R.string.color_default), (d, w) -> cb.onColor(NO_COLOR))
+                .setNegativeButton(a.getString(R.string.cancel), null);
         dlg[0] = b.create();
         dlg[0].show();
     }

@@ -12,6 +12,11 @@ import android.widget.Toast;
 public class ShareActivity extends Activity {
 
     @Override
+    protected void attachBaseContext(android.content.Context base) {
+        super.attachBaseContext(Lang.wrap(base));
+    }
+
+    @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         Intent in = getIntent();
@@ -36,9 +41,9 @@ public class ShareActivity extends Activity {
         }
         if (add != null && !add.isEmpty()) {
             NoteStore.append(this, add);
-            Toast.makeText(this, "Zur Notiz hinzugefügt", Toast.LENGTH_SHORT).show();
+            Toast.makeText(this, getString(R.string.note_added), Toast.LENGTH_SHORT).show();
         } else {
-            Toast.makeText(this, "Kein Text zum Hinzufügen", Toast.LENGTH_SHORT).show();
+            Toast.makeText(this, getString(R.string.nothing_to_add), Toast.LENGTH_SHORT).show();
         }
         finish();
     }

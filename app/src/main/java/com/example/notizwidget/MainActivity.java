@@ -3,6 +3,7 @@ package com.example.notizwidget;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.ActivityNotFoundException;
+import android.content.Context;
 import android.content.Intent;
 import android.graphics.Color;
 import android.graphics.Paint;
@@ -22,6 +23,7 @@ import android.view.WindowInsetsController;
 import android.util.TypedValue;
 import android.widget.ArrayAdapter;
 import android.widget.EditText;
+import android.widget.ImageView;
 import android.widget.PopupMenu;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -39,8 +41,16 @@ public class MainActivity extends Activity {
     private static final int REQ_SAVE = 1;
     private static final int REQ_OPEN = 2;
 
+    private static final int REQ_SPEECH = 3;
+
+    private String uiStamp;
     private View root;
-    private EditText editor;
+    private SelectionEditText editor;
+    private TextView lastEdit;
+    private View searchBar;
+    private EditText searchInput;
+    private ImageView btnSearch;
+    private ImageView btnMic;
     private TextView menuButton;
     private TextView[] toolButtons;
     private boolean firstLoad = true;
@@ -56,13 +66,25 @@ public class MainActivity extends Activity {
     private Integer typeColor; // null = Standardfarbe
 
     @Override
+    protected void attachBaseContext(Context base) {
+        super.attachBaseContext(Lang.wrap(base));
+    }
+
+    @Override
     protected void onCreate(Bundle savedInstanceState) {
+        setTheme(Settings.themeRes(this));
         super.onCreate(savedInstanceState);
+        uiStamp = uiStamp();
         setContentView(R.layout.activity_main);
 
         root = findViewById(R.id.root);
         editor = findViewById(R.id.editor);
         menuButton = findViewById(R.id.btn_menu);
+        lastEdit = findViewById(R.id.last_edit);
+        searchBar = findViewById(R.id.search_bar);
+        searchInput = findViewById(R.id.search_input);
+        btnSearch = findViewById(R.id.btn_search);
+        btnMic = findViewById(R.id.btn_mic);
         TextView bold = findViewById(R.id.tb_bold);
         TextView italic = findViewById(R.id.tb_italic);
         TextView underline = findViewById(R.id.tb_underline);
@@ -77,6 +99,17 @@ public class MainActivity extends Activity {
         size.setOnClickListener(v -> formatSelection(3));
         color.setOnClickListener(v -> formatSelection(4));
         menuButton.setOnClickListener(this::showMenu);
+        btnSearch.setOnClickListener(v -> toggleSearch());
+        btnMic.setOnClickListener(v -> startDictation());
+        findViewById(R.id.search_next).setOnClickListener(v -> findNext(true));
+        findViewById(R.id.search_prev).setOnClickListener(v -> findNext(false));
+        findViewById(R.id.search_close).setOnClickListener(v -> toggleSearch());
+        searchInput.setOnEditorActionListener((v, actionId, ev) -> {
+            findNext(true);
+            return true;
+        });
+        // Beim Markieren zeigt der Groessen-Knopf die Groesse des markierten Textes.
+        editor.setSelectionListener((s, e) -> updateToolState());
 
         // Neuer Text am Anfang einer Zeile bekommt immer das Standardformat. Formatierung bleibt nur
         // bei dem Text, den man markiert und formatiert hat.
@@ -92,7 +125,9 @@ public class MainActivity extends Activity {
 
             @Override
             public void afterTextChanged(Editable e) {
-                if (suppressWatch || changeCount <= 0) return;
+                if (suppressWatch) return;
+                showLastEdit(System.currentTimeMillis());
+                if (changeCount <= 0) return;
                 int start = changeStart;
                 int end = Math.min(changeStart + changeCount, e.length());
                 if (start < 0 || start >= end) return;
@@ -120,7 +155,12 @@ public class MainActivity extends Activity {
     @Override
     protected void onResume() {
         super.onResume();
+        if (!uiStamp().equals(uiStamp)) {
+            recreate();
+            return;
+        }
         applyColors();
+        showLastEdit(Settings.lastEdit(this));
         // Notiz laden bzw. neu laden, falls sie inzwischen von aussen geaendert wurde (z. B. durch "Teilen").
         String stored = NoteStore.loadRaw(this);
         if (!NoteStore.serialize(editor.getText()).equals(stored)) {
@@ -139,6 +179,20 @@ public class MainActivity extends Activity {
         NoteStore.save(this, editor.getText());
     }
 
+    private String uiStamp() {
+        return Settings.language(this) + Settings.darkMode(this);
+    }
+
+    private void showLastEdit(long time) {
+        if (time <= 0) {
+            lastEdit.setText("");
+            return;
+        }
+        String when = java.text.DateFormat.getDateTimeInstance(java.text.DateFormat.SHORT,
+                java.text.DateFormat.SHORT, Lang.locale(this)).format(new Date(time));
+        lastEdit.setText(getString(R.string.last_edit, when));
+    }
+
     // ---------- Farben ----------
 
     private void applyColors() {
@@ -148,6 +202,13 @@ public class MainActivity extends Activity {
         editor.setTextColor(fg);
         editor.setHintTextColor((fg & 0x00FFFFFF) | 0x80000000);
         menuButton.setTextColor(fg);
+        lastEdit.setTextColor(fg);
+        btnSearch.setColorFilter(fg);
+        btnMic.setColorFilter(fg);
+        searchInput.setTextColor(fg);
+        searchInput.setHintTextColor((fg & 0x00FFFFFF) | 0x80000000);
+        for (int id : new int[]{R.id.search_prev, R.id.search_next, R.id.search_close})
+            ((TextView) findViewById(id)).setTextColor(fg);
         for (TextView t : toolButtons) t.setTextColor(fg);
         applySystemBars(bg);
         updateToolState();
@@ -195,7 +256,10 @@ public class MainActivity extends Activity {
                 TextFormat.toggleUnderline(e, start, end);
                 break;
             case 3:
-                pickSize(sz -> TextFormat.setSize(e, start, end, sz / (float) BASE_SIZE));
+                pickSize(sz -> {
+                    TextFormat.setSize(e, start, end, sz / (float) BASE_SIZE);
+                    updateToolState();
+                });
                 break;
             default:
                 Palette.pickTextColor(this, color -> TextFormat.setColor(e, start, end, color));
@@ -234,11 +298,34 @@ public class MainActivity extends Activity {
         void onSize(int sp);
     }
 
+    private boolean hasSelection() {
+        int a = editor.getSelectionStart();
+        int b = editor.getSelectionEnd();
+        return a >= 0 && b >= 0 && a != b;
+    }
+
+    /** Groesse (sp) des markierten Textes, gemessen am Anfang der Markierung. */
+    private int selectedTextSize() {
+        int a = Math.min(editor.getSelectionStart(), editor.getSelectionEnd());
+        android.text.style.RelativeSizeSpan[] spans =
+                editor.getText().getSpans(a, a + 1, android.text.style.RelativeSizeSpan.class);
+        float f = spans.length > 0 ? spans[0].getSizeChange() : 1f;
+        return Math.round(f * BASE_SIZE);
+    }
+
+    /** Zahl auf dem Groessen-Knopf: Groesse der Markierung, sonst das Tippformat. */
+    private int currentSizeShown() {
+        return hasSelection() ? selectedTextSize() : typeSize;
+    }
+
     /** Liste der Schriftgroessen zum direkten Antippen; jede Zahl steht in ihrer eigenen Groesse. */
     private void pickSize(final SizeCallback cb) {
+        final boolean selection = hasSelection();
+        final int shown = currentSizeShown();
+        final String tag = getString(selection ? R.string.size_current : R.string.size_default);
         final String[] labels = new String[SIZE_CHOICES.length];
         for (int i = 0; i < labels.length; i++)
-            labels[i] = SIZE_CHOICES[i] + (SIZE_CHOICES[i] == BASE_SIZE ? "  (Standard)" : "");
+            labels[i] = SIZE_CHOICES[i] + (SIZE_CHOICES[i] == shown ? "  " + tag : "");
         ArrayAdapter<String> adapter = new ArrayAdapter<String>(this, android.R.layout.simple_list_item_1, labels) {
             @Override
             public View getView(int position, View convertView, android.view.ViewGroup parent) {
@@ -246,13 +333,86 @@ public class MainActivity extends Activity {
                 v.setTextSize(TypedValue.COMPLEX_UNIT_SP, SIZE_CHOICES[position]);
                 v.setMinHeight(0);
                 v.setMinimumHeight(0);
+                v.setTypeface(null, SIZE_CHOICES[position] == shown ? Typeface.BOLD : Typeface.NORMAL);
                 return v;
             }
         };
         new AlertDialog.Builder(this)
-                .setTitle("Schriftgröße")
+                .setTitle(getString(R.string.size_title))
                 .setAdapter(adapter, (d, which) -> cb.onSize(SIZE_CHOICES[which]))
                 .show();
+    }
+
+    // ---------- Suche ----------
+
+    private void toggleSearch() {
+        boolean show = searchBar.getVisibility() != View.VISIBLE;
+        searchBar.setVisibility(show ? View.VISIBLE : View.GONE);
+        android.view.inputmethod.InputMethodManager imm =
+                (android.view.inputmethod.InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
+        if (show) {
+            searchInput.requestFocus();
+            if (imm != null) imm.showSoftInput(searchInput, 0);
+        } else {
+            searchInput.setText("");
+            editor.requestFocus();
+        }
+    }
+
+    private void findNext(boolean forward) {
+        String q = searchInput.getText().toString().toLowerCase(Lang.locale(this));
+        if (q.isEmpty()) return;
+        String hay = editor.getText().toString().toLowerCase(Lang.locale(this));
+        if (hay.length() != editor.getText().length()) return; // seltene Sonderzeichen: Positionen waeren verschoben
+        int pos;
+        if (forward) {
+            pos = hay.indexOf(q, editor.getSelectionEnd());
+            if (pos < 0) pos = hay.indexOf(q);
+        } else {
+            int from = editor.getSelectionStart() - 1;
+            pos = from >= 0 ? hay.lastIndexOf(q, from) : -1;
+            if (pos < 0) pos = hay.lastIndexOf(q);
+        }
+        if (pos < 0) {
+            toast(getString(R.string.not_found));
+            return;
+        }
+        editor.requestFocus();
+        editor.setSelection(pos, pos + q.length());
+        final int at = pos;
+        editor.post(() -> {
+            android.text.Layout layout = editor.getLayout();
+            if (layout == null) return;
+            int y = layout.getLineTop(layout.getLineForOffset(at));
+            ((android.widget.ScrollView) findViewById(R.id.editor_scroll))
+                    .smoothScrollTo(0, Math.max(0, y - Palette.dp(this, 80)));
+        });
+    }
+
+    // ---------- Sprachdiktat ----------
+
+    private void startDictation() {
+        Intent i = new Intent(android.speech.RecognizerIntent.ACTION_RECOGNIZE_SPEECH);
+        i.putExtra(android.speech.RecognizerIntent.EXTRA_LANGUAGE_MODEL,
+                android.speech.RecognizerIntent.LANGUAGE_MODEL_FREE_FORM);
+        i.putExtra(android.speech.RecognizerIntent.EXTRA_LANGUAGE, Lang.locale(this).toLanguageTag());
+        i.putExtra(android.speech.RecognizerIntent.EXTRA_PROMPT, getString(R.string.speech_prompt));
+        try {
+            startActivityForResult(i, REQ_SPEECH);
+        } catch (Exception ex) {
+            toast(getString(R.string.no_speech));
+        }
+    }
+
+    private void insertDictation(String spoken) {
+        if (spoken == null || spoken.trim().isEmpty()) return;
+        Editable e = editor.getText();
+        int a = Math.max(0, Math.min(editor.getSelectionStart(), editor.getSelectionEnd()));
+        int b = Math.max(0, Math.max(editor.getSelectionStart(), editor.getSelectionEnd()));
+        if (editor.getSelectionStart() < 0) a = b = e.length();
+        String ins = spoken.trim();
+        if (a > 0 && !Character.isWhitespace(e.charAt(a - 1))) ins = " " + ins;
+        e.replace(a, b, ins);
     }
 
     private void applyTypingFormat(Editable e, int start, int end) {
@@ -266,12 +426,13 @@ public class MainActivity extends Activity {
 
     /** Zeigt dezent an, welches Tippformat gerade eingeschaltet ist. */
     private void updateToolState() {
+        if (toolButtons == null || editor == null) return;
         int fg = Palette.textColorFor(Settings.bgColor(this));
         int hi = (fg & 0x00FFFFFF) | 0x33000000;
         toolButtons[0].setBackgroundColor(typeBold ? hi : Color.TRANSPARENT);
         toolButtons[1].setBackgroundColor(typeItalic ? hi : Color.TRANSPARENT);
         toolButtons[2].setBackgroundColor(typeUnderline ? hi : Color.TRANSPARENT);
-        toolButtons[3].setText(String.valueOf(typeSize));
+        toolButtons[3].setText(String.valueOf(currentSizeShown()));
         toolButtons[4].setTextColor(typeColor != null ? typeColor : fg);
     }
 
@@ -280,12 +441,12 @@ public class MainActivity extends Activity {
     private void showMenu(View anchor) {
         PopupMenu pm = new PopupMenu(this, anchor);
         Menu m = pm.getMenu();
-        m.add(0, 1, 0, "Einstellungen");
-        m.add(0, 2, 1, "Per E-Mail senden");
-        m.add(0, 3, 2, "Erinnerung für Markierung");
-        m.add(0, 4, 3, "Gelöschtes zurückholen");
-        m.add(0, 5, 4, "Sicherung speichern …");
-        m.add(0, 6, 5, "Sicherung einspielen …");
+        m.add(0, 1, 0, getString(R.string.settings_title));
+        m.add(0, 2, 1, getString(R.string.menu_email));
+        m.add(0, 3, 2, getString(R.string.menu_reminder));
+        m.add(0, 4, 3, getString(R.string.menu_history));
+        m.add(0, 5, 4, getString(R.string.menu_save_backup));
+        m.add(0, 6, 5, getString(R.string.menu_open_backup));
         pm.setOnMenuItemClickListener(item -> {
             switch (item.getItemId()) {
                 case 1:
@@ -317,7 +478,7 @@ public class MainActivity extends Activity {
     private void sendByEmail() {
         String plain = editor.getText().toString();
         if (plain.trim().isEmpty()) {
-            toast("Die Notiz ist leer");
+            toast(getString(R.string.note_empty));
             return;
         }
         Intent i = new Intent(Intent.ACTION_SENDTO, Uri.parse("mailto:"));
@@ -330,7 +491,7 @@ public class MainActivity extends Activity {
         try {
             startActivity(i);
         } catch (ActivityNotFoundException ex) {
-            toast("Keine E-Mail-App gefunden");
+            toast(getString(R.string.no_mail_app));
         }
     }
 
@@ -339,7 +500,7 @@ public class MainActivity extends Activity {
         int a = editor.getSelectionStart();
         int b = editor.getSelectionEnd();
         if (a < 0 || b < 0 || a == b) {
-            toast("Erst Text markieren");
+            toast(getString(R.string.select_text_first));
             return;
         }
         String title = editor.getText().subSequence(Math.min(a, b), Math.max(a, b)).toString().trim();
@@ -352,7 +513,7 @@ public class MainActivity extends Activity {
         try {
             startActivity(i);
         } catch (ActivityNotFoundException ex) {
-            toast("Keine Kalender-App gefunden");
+            toast(getString(R.string.no_calendar_app));
         }
     }
 
@@ -360,20 +521,20 @@ public class MainActivity extends Activity {
         NoteStore.save(this, editor.getText()); // aktuellen Stand sichern, bevor man zurueckgeht
         final List<NoteStore.Entry> list = NoteStore.history(this);
         if (list.isEmpty()) {
-            toast("Noch keine früheren Fassungen");
+            toast(getString(R.string.no_history));
             return;
         }
         String[] labels = new String[list.size()];
         for (int i = 0; i < labels.length; i++) labels[i] = list.get(i).label;
         new AlertDialog.Builder(this)
-                .setTitle("Frühere Fassung zurückholen")
+                .setTitle(getString(R.string.history_title))
                 .setItems(labels, (d, which) -> {
                     setNote(NoteStore.deserialize(list.get(which).raw));
                     editor.setSelection(editor.getText().length());
                     NoteStore.save(this, editor.getText());
-                    toast("Zurückgeholt");
+                    toast(getString(R.string.restored));
                 })
-                .setNegativeButton("Abbrechen", null)
+                .setNegativeButton(getString(R.string.cancel), null)
                 .show();
     }
 
@@ -396,29 +557,37 @@ public class MainActivity extends Activity {
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
+        if (requestCode == REQ_SPEECH) {
+            if (resultCode == RESULT_OK && data != null) {
+                java.util.ArrayList<String> r =
+                        data.getStringArrayListExtra(android.speech.RecognizerIntent.EXTRA_RESULTS);
+                if (r != null && !r.isEmpty()) insertDictation(r.get(0));
+            }
+            return;
+        }
         if (resultCode != RESULT_OK || data == null || data.getData() == null) return;
         Uri uri = data.getData();
         if (requestCode == REQ_SAVE) {
             boolean ok = Backup.writeToUri(this, uri, Backup.toHtml(editor.getText()));
-            toast(ok ? "Sicherung gespeichert" : "Speichern fehlgeschlagen");
+            toast(ok ? getString(R.string.backup_saved) : getString(R.string.save_failed));
         } else if (requestCode == REQ_OPEN) {
             String content = Backup.readFromUri(this, uri);
             if (content == null) {
-                toast("Datei konnte nicht gelesen werden");
+                toast(getString(R.string.read_failed));
                 return;
             }
             final SpannableStringBuilder imported = Backup.fromBackup(content);
             new AlertDialog.Builder(this)
-                    .setTitle("Sicherung einspielen?")
-                    .setMessage("Die aktuelle Notiz wird ersetzt. Sie bleibt unter „Gelöschtes zurückholen“ erhalten.")
-                    .setPositiveButton("Einspielen", (d, w) -> {
+                    .setTitle(getString(R.string.restore_title))
+                    .setMessage(getString(R.string.restore_message))
+                    .setPositiveButton(getString(R.string.restore_ok), (d, w) -> {
                         NoteStore.save(this, editor.getText());
                         setNote(imported);
                         editor.setSelection(editor.getText().length());
                         NoteStore.save(this, editor.getText());
-                        toast("Sicherung eingespielt");
+                        toast(getString(R.string.restore_done));
                     })
-                    .setNegativeButton("Abbrechen", null)
+                    .setNegativeButton(getString(R.string.cancel), null)
                     .show();
         }
     }
