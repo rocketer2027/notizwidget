@@ -31,6 +31,8 @@ import java.util.Locale;
 /** Der Editor: ein Textfeld, Formatierung fuer markierten Text, ein kleines Menue. */
 public class MainActivity extends Activity {
 
+    private static final int BASE_SIZE = 18; // Standardgroesse im Editor (sp)
+    private static final int[] SIZE_CHOICES = {10, 11, 12, 13, 14, 15, 16, 18, 20, 22, 24, 28, 32, 36, 40, 48};
     private static final int REQ_SAVE = 1;
     private static final int REQ_OPEN = 2;
 
@@ -46,7 +48,7 @@ public class MainActivity extends Activity {
     // Format fuer allen neu getippten Text; bleibt, bis man es aendert (Standard = alles aus).
     private boolean typeBold;
     private boolean typeItalic;
-    private int typeSizeIdx = TextFormat.DEFAULT_SIZE_IDX;
+    private int typeSize = BASE_SIZE; // in sp, Standard = BASE_SIZE
     private Integer typeColor; // null = Standardfarbe
 
     @Override
@@ -59,16 +61,14 @@ public class MainActivity extends Activity {
         menuButton = findViewById(R.id.btn_menu);
         TextView bold = findViewById(R.id.tb_bold);
         TextView italic = findViewById(R.id.tb_italic);
-        TextView smaller = findViewById(R.id.tb_smaller);
-        TextView bigger = findViewById(R.id.tb_bigger);
+        TextView size = findViewById(R.id.tb_size);
         TextView color = findViewById(R.id.tb_color);
-        toolButtons = new TextView[]{bold, italic, smaller, bigger, color};
+        toolButtons = new TextView[]{bold, italic, size, color};
 
         bold.setOnClickListener(v -> formatSelection(0));
         italic.setOnClickListener(v -> formatSelection(1));
-        smaller.setOnClickListener(v -> formatSelection(2));
-        bigger.setOnClickListener(v -> formatSelection(3));
-        color.setOnClickListener(v -> formatSelection(4));
+        size.setOnClickListener(v -> formatSelection(2));
+        color.setOnClickListener(v -> formatSelection(3));
         menuButton.setOnClickListener(this::showMenu);
 
         // Neuer Text am Anfang einer Zeile bekommt immer das Standardformat. Formatierung bleibt nur
@@ -185,10 +185,7 @@ public class MainActivity extends Activity {
                 TextFormat.toggleStyle(e, start, end, Typeface.ITALIC);
                 break;
             case 2:
-                TextFormat.changeSize(e, start, end, -1);
-                break;
-            case 3:
-                TextFormat.changeSize(e, start, end, +1);
+                pickSize(sz -> TextFormat.setSize(e, start, end, sz / (float) BASE_SIZE));
                 break;
             default:
                 Palette.pickTextColor(this, color -> TextFormat.setColor(e, start, end, color));
@@ -205,11 +202,11 @@ public class MainActivity extends Activity {
                 typeItalic = !typeItalic;
                 break;
             case 2:
-                typeSizeIdx = Math.max(0, typeSizeIdx - 1);
-                break;
-            case 3:
-                typeSizeIdx = Math.min(TextFormat.SIZES.length - 1, typeSizeIdx + 1);
-                break;
+                pickSize(sz -> {
+                    typeSize = sz;
+                    updateToolState();
+                });
+                return;
             default:
                 Palette.pickTextColor(this, color -> {
                     typeColor = color == Palette.NO_COLOR ? null : Integer.valueOf(color);
@@ -220,11 +217,26 @@ public class MainActivity extends Activity {
         updateToolState();
     }
 
+    private interface SizeCallback {
+        void onSize(int sp);
+    }
+
+    /** Liste der Schriftgroessen zum direkten Antippen. */
+    private void pickSize(final SizeCallback cb) {
+        String[] labels = new String[SIZE_CHOICES.length];
+        for (int i = 0; i < labels.length; i++)
+            labels[i] = SIZE_CHOICES[i] + (SIZE_CHOICES[i] == BASE_SIZE ? "  (Standard)" : "");
+        new AlertDialog.Builder(this)
+                .setTitle("Schriftgröße")
+                .setItems(labels, (d, which) -> cb.onSize(SIZE_CHOICES[which]))
+                .show();
+    }
+
     private void applyTypingFormat(Editable e, int start, int end) {
         if (start >= end) return;
         if (typeBold) TextFormat.setStyle(e, start, end, Typeface.BOLD, true);
         if (typeItalic) TextFormat.setStyle(e, start, end, Typeface.ITALIC, true);
-        if (typeSizeIdx != TextFormat.DEFAULT_SIZE_IDX) TextFormat.setSize(e, start, end, TextFormat.SIZES[typeSizeIdx]);
+        if (typeSize != BASE_SIZE) TextFormat.setSize(e, start, end, typeSize / (float) BASE_SIZE);
         if (typeColor != null) TextFormat.setColor(e, start, end, typeColor);
     }
 
@@ -234,9 +246,8 @@ public class MainActivity extends Activity {
         int hi = (fg & 0x00FFFFFF) | 0x33000000;
         toolButtons[0].setBackgroundColor(typeBold ? hi : Color.TRANSPARENT);
         toolButtons[1].setBackgroundColor(typeItalic ? hi : Color.TRANSPARENT);
-        toolButtons[2].setBackgroundColor(typeSizeIdx < TextFormat.DEFAULT_SIZE_IDX ? hi : Color.TRANSPARENT);
-        toolButtons[3].setBackgroundColor(typeSizeIdx > TextFormat.DEFAULT_SIZE_IDX ? hi : Color.TRANSPARENT);
-        toolButtons[4].setTextColor(typeColor != null ? typeColor : fg);
+        toolButtons[2].setText(String.valueOf(typeSize));
+        toolButtons[3].setTextColor(typeColor != null ? typeColor : fg);
     }
 
     // ---------- Menue ----------

@@ -83,7 +83,7 @@
             android:textStyle="italic" />
 
         <TextView
-            android:id="@+id/tb_smaller"
+            android:id="@+id/tb_size"
             android:layout_width="0dp"
             android:layout_height="match_parent"
             android:layout_weight="1"
@@ -91,20 +91,8 @@
             android:clickable="true"
             android:focusable="false"
             android:gravity="center"
-            android:text="A−"
+            android:text="18"
             android:textSize="18sp" />
-
-        <TextView
-            android:id="@+id/tb_bigger"
-            android:layout_width="0dp"
-            android:layout_height="match_parent"
-            android:layout_weight="1"
-            android:foreground="?android:attr/selectableItemBackground"
-            android:clickable="true"
-            android:focusable="false"
-            android:gravity="center"
-            android:text="A+"
-            android:textSize="22sp" />
 
         <TextView
             android:id="@+id/tb_color"

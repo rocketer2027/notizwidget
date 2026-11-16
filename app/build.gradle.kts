@@ -10,8 +10,8 @@ android {
         applicationId = "com.example.notizwidget"
         minSdk = 29
         targetSdk = 34
-        versionCode = 6
-        versionName = "2.4"
+        versionCode = 7
+        versionName = "2.5"
     }
 
     // Feste Signatur: Dadurch lassen sich spaetere Updates direkt ueber die alte App installieren.
