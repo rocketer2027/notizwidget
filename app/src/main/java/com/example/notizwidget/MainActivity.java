@@ -43,7 +43,7 @@ public class MainActivity extends Activity {
     private int changeStart;
     private int changeCount;
 
-    // Format fuer neu getippten Text, wenn nichts markiert ist (Standard = alles aus).
+    // Format fuer allen neu getippten Text; bleibt, bis man es aendert (Standard = alles aus).
     private boolean typeBold;
     private boolean typeItalic;
     private int typeSizeIdx = TextFormat.DEFAULT_SIZE_IDX;
@@ -70,11 +70,6 @@ public class MainActivity extends Activity {
         bigger.setOnClickListener(v -> formatSelection(3));
         color.setOnClickListener(v -> formatSelection(4));
         menuButton.setOnClickListener(this::showMenu);
-        // Tippt man an eine andere Stelle, gilt wieder das Standardformat.
-        editor.setOnClickListener(v -> {
-            resetTypingFormat();
-            updateToolState();
-        });
 
         // Neuer Text am Anfang einer Zeile bekommt immer das Standardformat. Formatierung bleibt nur
         // bei dem Text, den man markiert und formatiert hat.
@@ -102,15 +97,9 @@ public class MainActivity extends Activity {
                     }
                 }
                 boolean lineStart = start == 0 || e.charAt(start - 1) == '\n';
-                if (nl >= 0) {
-                    // Alles nach dem Umbruch ist eine neue Zeile: Standardformat, auch fuer das Tippformat.
-                    if (!lineStart) applyTypingFormat(e, start, nl);
-                    TextFormat.stripAll(e, lineStart ? start : nl + 1, end);
-                    resetTypingFormat();
-                    updateToolState();
-                    return;
-                }
-                if (lineStart) TextFormat.stripAll(e, start, end);
+                // Neue Zeilen starten ohne uebernommene Formatierung; danach gilt das eingestellte Tippformat.
+                if (nl >= 0) TextFormat.stripAll(e, lineStart ? start : nl + 1, end);
+                else if (lineStart) TextFormat.stripAll(e, start, end);
                 applyTypingFormat(e, start, end);
             }
         });
@@ -237,13 +226,6 @@ public class MainActivity extends Activity {
         if (typeItalic) TextFormat.setStyle(e, start, end, Typeface.ITALIC, true);
         if (typeSizeIdx != TextFormat.DEFAULT_SIZE_IDX) TextFormat.setSize(e, start, end, TextFormat.SIZES[typeSizeIdx]);
         if (typeColor != null) TextFormat.setColor(e, start, end, typeColor);
-    }
-
-    private void resetTypingFormat() {
-        typeBold = false;
-        typeItalic = false;
-        typeSizeIdx = TextFormat.DEFAULT_SIZE_IDX;
-        typeColor = null;
     }
 
     /** Zeigt dezent an, welches Tippformat gerade eingeschaltet ist. */

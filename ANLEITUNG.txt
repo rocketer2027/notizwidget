@@ -1,4 +1,4 @@
-Catatan Version 2.3 - Kurzanleitung
+Catatan Version 2.4 - Kurzanleitung
 ================================
 
 WICHTIG beim ersten Update von Version 1
@@ -9,6 +9,11 @@ WICHTIG beim ersten Update von Version 1
     2. Alte App "Notiz" deinstallieren.
     3. Neue APK installieren, Text einfuegen, Widget neu auf den Homescreen ziehen.
   Ab dann gehen alle weiteren Updates direkt drueber, ohne Datenverlust.
+
+Neu in 2.4
+  - Format-Buttons: Ohne Markierung gilt die Einstellung (Groesse, Farbe, fett, kursiv) fuer ALLEN Text, den du
+    ab jetzt schreibst - auch in neuen Zeilen - bis du sie wieder aenderst. Mit Markierung aendert sich nur der
+    markierte Text. Aktive Einstellungen sind unten hinterlegt. Nach App-Neustart gilt wieder Standard.
 
 Neu in 2.3
   - Automatische Sicherung repariert: Sie laeuft jetzt ueber einen Wecker, der auch im Ruhezustand ausloest
@@ -29,7 +34,7 @@ Neu in 2.2
     zeigt ein dezenter Balken die Position. Ein Tipp auf die leere Flaeche unter dem Text setzt den Cursor.
   - Einstellungen > Automatische Sicherung: Schalter, Rhythmus (jeden Tag bis alle 14 Tage), Uhrzeit,
     Format (HTML mit Formatierung oder Textdatei) und "Jetzt sichern".
-  - Oben in den Einstellungen steht die installierte Version. Wenn dort nicht "2.3" steht, ist eine alte
+  - Oben in den Einstellungen steht die installierte Version. Wenn dort nicht "2.4" steht, ist eine alte
     APK installiert.
   - Nach einem Update zeichnet sich das Widget automatisch neu. Sieht es trotzdem noch alt aus
     (kein Scrollbalken rechts): Widget einmal vom Homescreen entfernen und neu hinzufuegen.
