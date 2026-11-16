@@ -83,6 +83,19 @@
             android:textStyle="italic" />
 
         <TextView
+            android:id="@+id/tb_underline"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:clickable="true"
+            android:contentDescription="Unterstreichen"
+            android:focusable="false"
+            android:foreground="?android:attr/selectableItemBackground"
+            android:gravity="center"
+            android:text="U"
+            android:textSize="20sp" />
+
+        <TextView
             android:id="@+id/tb_size"
             android:layout_width="0dp"
             android:layout_height="match_parent"

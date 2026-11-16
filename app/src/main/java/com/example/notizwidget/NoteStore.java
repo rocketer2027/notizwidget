@@ -8,6 +8,7 @@ import android.text.Spanned;
 import android.text.style.ForegroundColorSpan;
 import android.text.style.RelativeSizeSpan;
 import android.text.style.StyleSpan;
+import android.text.style.UnderlineSpan;
 
 import org.json.JSONArray;
 import org.json.JSONObject;
@@ -97,6 +98,8 @@ final class NoteStore {
                         int st = ((StyleSpan) s).getStyle();
                         if (st == Typeface.BOLD || st == Typeface.BOLD_ITALIC) arr.put(entry(a, b, "b", 0));
                         if (st == Typeface.ITALIC || st == Typeface.BOLD_ITALIC) arr.put(entry(a, b, "i", 0));
+                    } else if (s instanceof UnderlineSpan) {
+                        arr.put(entry(a, b, "u", 0));
                     } else if (s instanceof RelativeSizeSpan) {
                         arr.put(entry(a, b, "z", ((RelativeSizeSpan) s).getSizeChange()));
                     } else if (s instanceof ForegroundColorSpan) {
@@ -116,7 +119,7 @@ final class NoteStore {
         j.put("a", a);
         j.put("b", b);
         j.put("k", kind);
-        if (!kind.equals("b") && !kind.equals("i")) j.put("v", value);
+        if (!kind.equals("b") && !kind.equals("i") && !kind.equals("u")) j.put("v", value);
         return j;
     }
 
@@ -139,6 +142,7 @@ final class NoteStore {
                     String k = j.optString("k");
                     if (k.equals("b")) span = new StyleSpan(Typeface.BOLD);
                     else if (k.equals("i")) span = new StyleSpan(Typeface.ITALIC);
+                    else if (k.equals("u")) span = new UnderlineSpan();
                     else if (k.equals("z")) span = new RelativeSizeSpan((float) j.optDouble("v", 1.0));
                     else if (k.equals("c")) span = new ForegroundColorSpan(j.optInt("v"));
                     if (span != null) sb.setSpan(span, a, b, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);

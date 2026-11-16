@@ -5,6 +5,7 @@ import android.app.AlertDialog;
 import android.content.ActivityNotFoundException;
 import android.content.Intent;
 import android.graphics.Color;
+import android.graphics.Paint;
 import android.graphics.Typeface;
 import android.net.Uri;
 import android.os.Build;
@@ -18,6 +19,8 @@ import android.view.Menu;
 import android.view.View;
 import android.view.Window;
 import android.view.WindowInsetsController;
+import android.util.TypedValue;
+import android.widget.ArrayAdapter;
 import android.widget.EditText;
 import android.widget.PopupMenu;
 import android.widget.TextView;
@@ -48,6 +51,7 @@ public class MainActivity extends Activity {
     // Format fuer allen neu getippten Text; bleibt, bis man es aendert (Standard = alles aus).
     private boolean typeBold;
     private boolean typeItalic;
+    private boolean typeUnderline;
     private int typeSize = BASE_SIZE; // in sp, Standard = BASE_SIZE
     private Integer typeColor; // null = Standardfarbe
 
@@ -61,14 +65,17 @@ public class MainActivity extends Activity {
         menuButton = findViewById(R.id.btn_menu);
         TextView bold = findViewById(R.id.tb_bold);
         TextView italic = findViewById(R.id.tb_italic);
+        TextView underline = findViewById(R.id.tb_underline);
+        underline.setPaintFlags(underline.getPaintFlags() | Paint.UNDERLINE_TEXT_FLAG);
         TextView size = findViewById(R.id.tb_size);
         TextView color = findViewById(R.id.tb_color);
-        toolButtons = new TextView[]{bold, italic, size, color};
+        toolButtons = new TextView[]{bold, italic, underline, size, color};
 
         bold.setOnClickListener(v -> formatSelection(0));
         italic.setOnClickListener(v -> formatSelection(1));
-        size.setOnClickListener(v -> formatSelection(2));
-        color.setOnClickListener(v -> formatSelection(3));
+        underline.setOnClickListener(v -> formatSelection(2));
+        size.setOnClickListener(v -> formatSelection(3));
+        color.setOnClickListener(v -> formatSelection(4));
         menuButton.setOnClickListener(this::showMenu);
 
         // Neuer Text am Anfang einer Zeile bekommt immer das Standardformat. Formatierung bleibt nur
@@ -185,6 +192,9 @@ public class MainActivity extends Activity {
                 TextFormat.toggleStyle(e, start, end, Typeface.ITALIC);
                 break;
             case 2:
+                TextFormat.toggleUnderline(e, start, end);
+                break;
+            case 3:
                 pickSize(sz -> TextFormat.setSize(e, start, end, sz / (float) BASE_SIZE));
                 break;
             default:
@@ -202,6 +212,9 @@ public class MainActivity extends Activity {
                 typeItalic = !typeItalic;
                 break;
             case 2:
+                typeUnderline = !typeUnderline;
+                break;
+            case 3:
                 pickSize(sz -> {
                     typeSize = sz;
                     updateToolState();
@@ -221,14 +234,24 @@ public class MainActivity extends Activity {
         void onSize(int sp);
     }
 
-    /** Liste der Schriftgroessen zum direkten Antippen. */
+    /** Liste der Schriftgroessen zum direkten Antippen; jede Zahl steht in ihrer eigenen Groesse. */
     private void pickSize(final SizeCallback cb) {
-        String[] labels = new String[SIZE_CHOICES.length];
+        final String[] labels = new String[SIZE_CHOICES.length];
         for (int i = 0; i < labels.length; i++)
             labels[i] = SIZE_CHOICES[i] + (SIZE_CHOICES[i] == BASE_SIZE ? "  (Standard)" : "");
+        ArrayAdapter<String> adapter = new ArrayAdapter<String>(this, android.R.layout.simple_list_item_1, labels) {
+            @Override
+            public View getView(int position, View convertView, android.view.ViewGroup parent) {
+                TextView v = (TextView) super.getView(position, convertView, parent);
+                v.setTextSize(TypedValue.COMPLEX_UNIT_SP, SIZE_CHOICES[position]);
+                v.setMinHeight(0);
+                v.setMinimumHeight(0);
+                return v;
+            }
+        };
         new AlertDialog.Builder(this)
                 .setTitle("Schriftgröße")
-                .setItems(labels, (d, which) -> cb.onSize(SIZE_CHOICES[which]))
+                .setAdapter(adapter, (d, which) -> cb.onSize(SIZE_CHOICES[which]))
                 .show();
     }
 
@@ -236,6 +259,7 @@ public class MainActivity extends Activity {
         if (start >= end) return;
         if (typeBold) TextFormat.setStyle(e, start, end, Typeface.BOLD, true);
         if (typeItalic) TextFormat.setStyle(e, start, end, Typeface.ITALIC, true);
+        if (typeUnderline) TextFormat.setUnderline(e, start, end, true);
         if (typeSize != BASE_SIZE) TextFormat.setSize(e, start, end, typeSize / (float) BASE_SIZE);
         if (typeColor != null) TextFormat.setColor(e, start, end, typeColor);
     }
@@ -246,8 +270,9 @@ public class MainActivity extends Activity {
         int hi = (fg & 0x00FFFFFF) | 0x33000000;
         toolButtons[0].setBackgroundColor(typeBold ? hi : Color.TRANSPARENT);
         toolButtons[1].setBackgroundColor(typeItalic ? hi : Color.TRANSPARENT);
-        toolButtons[2].setText(String.valueOf(typeSize));
-        toolButtons[3].setTextColor(typeColor != null ? typeColor : fg);
+        toolButtons[2].setBackgroundColor(typeUnderline ? hi : Color.TRANSPARENT);
+        toolButtons[3].setText(String.valueOf(typeSize));
+        toolButtons[4].setTextColor(typeColor != null ? typeColor : fg);
     }
 
     // ---------- Menue ----------

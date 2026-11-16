@@ -5,6 +5,7 @@ import android.text.Spanned;
 import android.text.style.ForegroundColorSpan;
 import android.text.style.RelativeSizeSpan;
 import android.text.style.StyleSpan;
+import android.text.style.UnderlineSpan;
 
 /** Formatiert nur den markierten Bereich: fett, kursiv, Groesse, Farbe. */
 final class TextFormat {
@@ -55,6 +56,7 @@ final class TextFormat {
     }
 
     private static boolean same(Object a, Object b) {
+        if (a instanceof UnderlineSpan && b instanceof UnderlineSpan) return true;
         if (a instanceof StyleSpan && b instanceof StyleSpan)
             return ((StyleSpan) a).getStyle() == ((StyleSpan) b).getStyle();
         if (a instanceof RelativeSizeSpan && b instanceof RelativeSizeSpan)
@@ -104,6 +106,31 @@ final class TextFormat {
         if (!all) put(e, new StyleSpan(style), start, end);
     }
 
+    /** Unterstreichung ein- bzw. ausschalten (wenn schon alles markierte unterstrichen ist, wird sie entfernt). */
+    static void toggleUnderline(Editable e, int start, int end) {
+        boolean[] covered = new boolean[end - start];
+        for (UnderlineSpan sp : e.getSpans(start, end, UnderlineSpan.class)) {
+            int a = Math.max(start, e.getSpanStart(sp));
+            int b = Math.min(end, e.getSpanEnd(sp));
+            for (int i = a; i < b; i++) covered[i - start] = true;
+        }
+        boolean all = true;
+        for (boolean c : covered) {
+            if (!c) {
+                all = false;
+                break;
+            }
+        }
+        setUnderline(e, start, end, !all);
+    }
+
+    /** Unterstreichung fest setzen (on) oder entfernen. */
+    static void setUnderline(Editable e, int start, int end, boolean on) {
+        if (start >= end) return;
+        clear(e, UnderlineSpan.class, start, end, null);
+        if (on) put(e, new UnderlineSpan(), start, end);
+    }
+
     /** Groesse um eine Stufe aendern (delta = +1 oder -1). */
     static void changeSize(Editable e, int start, int end, int delta) {
         float current = 1f;
@@ -133,6 +160,7 @@ final class TextFormat {
     static void stripAll(Editable e, int start, int end) {
         if (start >= end) return;
         clear(e, StyleSpan.class, start, end, null);
+        clear(e, UnderlineSpan.class, start, end, null);
         clear(e, RelativeSizeSpan.class, start, end, null);
         clear(e, ForegroundColorSpan.class, start, end, null);
     }
@@ -157,6 +185,7 @@ final class TextFormat {
     }
 
     private static Object copy(Object s) {
+        if (s instanceof UnderlineSpan) return new UnderlineSpan();
         if (s instanceof StyleSpan) return new StyleSpan(((StyleSpan) s).getStyle());
         if (s instanceof ForegroundColorSpan)
             return new ForegroundColorSpan(((ForegroundColorSpan) s).getForegroundColor());
