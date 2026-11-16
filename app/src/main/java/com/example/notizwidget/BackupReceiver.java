@@ -4,7 +4,7 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 
-/** Empfaengt den taeglichen Wecker und den Neustart des Handys. */
+/** Empfaengt den Sicherungs-Wecker sowie Neustart des Handys und App-Update. */
 public class BackupReceiver extends BroadcastReceiver {
 
     @Override
@@ -15,6 +15,9 @@ public class BackupReceiver extends BroadcastReceiver {
             if (Settings.autoBackup(context)) Backup.schedule(context);
             return;
         }
-        Backup.runIfDue(context);
+        boolean force = intent.getBooleanExtra(Backup.EXTRA_FORCE, false);
+        // Zuerst den naechsten Wecker setzen, damit die Kette nie abreisst - egal, was jetzt passiert.
+        if (!force && Settings.autoBackup(context)) Backup.schedule(context);
+        Backup.runAuto(context, force);
     }
 }

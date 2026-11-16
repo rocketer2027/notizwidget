@@ -4,6 +4,7 @@ import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.ActivityNotFoundException;
 import android.content.Intent;
+import android.graphics.Color;
 import android.graphics.Typeface;
 import android.net.Uri;
 import android.os.Build;
@@ -42,6 +43,12 @@ public class MainActivity extends Activity {
     private int changeStart;
     private int changeCount;
 
+    // Format fuer neu getippten Text, wenn nichts markiert ist (Standard = alles aus).
+    private boolean typeBold;
+    private boolean typeItalic;
+    private int typeSizeIdx = TextFormat.DEFAULT_SIZE_IDX;
+    private Integer typeColor; // null = Standardfarbe
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -63,6 +70,11 @@ public class MainActivity extends Activity {
         bigger.setOnClickListener(v -> formatSelection(3));
         color.setOnClickListener(v -> formatSelection(4));
         menuButton.setOnClickListener(this::showMenu);
+        // Tippt man an eine andere Stelle, gilt wieder das Standardformat.
+        editor.setOnClickListener(v -> {
+            resetTypingFormat();
+            updateToolState();
+        });
 
         // Neuer Text am Anfang einer Zeile bekommt immer das Standardformat. Formatierung bleibt nur
         // bei dem Text, den man markiert und formatiert hat.
@@ -82,25 +94,31 @@ public class MainActivity extends Activity {
                 int start = changeStart;
                 int end = Math.min(changeStart + changeCount, e.length());
                 if (start < 0 || start >= end) return;
-                int from;
-                if (start == 0 || e.charAt(start - 1) == '\n') {
-                    from = start; // Text beginnt eine neue Zeile
-                } else {
-                    int nl = -1; // eingefuegter Zeilenumbruch: alles dahinter ist neue Zeile
-                    for (int i = start; i < end; i++) {
-                        if (e.charAt(i) == '\n') {
-                            nl = i;
-                            break;
-                        }
+                int nl = -1; // erster eingefuegter Zeilenumbruch
+                for (int i = start; i < end; i++) {
+                    if (e.charAt(i) == '\n') {
+                        nl = i;
+                        break;
                     }
-                    if (nl < 0) return;
-                    from = nl + 1;
                 }
-                TextFormat.stripAll(e, from, end);
+                boolean lineStart = start == 0 || e.charAt(start - 1) == '\n';
+                if (nl >= 0) {
+                    // Alles nach dem Umbruch ist eine neue Zeile: Standardformat, auch fuer das Tippformat.
+                    if (!lineStart) applyTypingFormat(e, start, nl);
+                    TextFormat.stripAll(e, lineStart ? start : nl + 1, end);
+                    resetTypingFormat();
+                    updateToolState();
+                    return;
+                }
+                if (lineStart) TextFormat.stripAll(e, start, end);
+                applyTypingFormat(e, start, end);
             }
         });
 
-        if (Settings.autoBackup(this)) Backup.schedule(this);
+        if (Settings.autoBackup(this)) {
+            Backup.schedule(this);
+            Backup.requestNotificationPermission(this, true);
+        }
     }
 
     @Override
@@ -136,6 +154,7 @@ public class MainActivity extends Activity {
         menuButton.setTextColor(fg);
         for (TextView t : toolButtons) t.setTextColor(fg);
         applySystemBars(bg);
+        updateToolState();
     }
 
     private void applySystemBars(int bg) {
@@ -163,7 +182,7 @@ public class MainActivity extends Activity {
         int a = editor.getSelectionStart();
         int b = editor.getSelectionEnd();
         if (a < 0 || b < 0 || a == b) {
-            toast("Erst Text markieren");
+            changeTypingFormat(kind); // nichts markiert: Format fuer den weiteren Text festlegen
             return;
         }
         final int start = Math.min(a, b);
@@ -186,6 +205,56 @@ public class MainActivity extends Activity {
                 Palette.pickTextColor(this, color -> TextFormat.setColor(e, start, end, color));
                 break;
         }
+    }
+
+    private void changeTypingFormat(int kind) {
+        switch (kind) {
+            case 0:
+                typeBold = !typeBold;
+                break;
+            case 1:
+                typeItalic = !typeItalic;
+                break;
+            case 2:
+                typeSizeIdx = Math.max(0, typeSizeIdx - 1);
+                break;
+            case 3:
+                typeSizeIdx = Math.min(TextFormat.SIZES.length - 1, typeSizeIdx + 1);
+                break;
+            default:
+                Palette.pickTextColor(this, color -> {
+                    typeColor = color == Palette.NO_COLOR ? null : Integer.valueOf(color);
+                    updateToolState();
+                });
+                return;
+        }
+        updateToolState();
+    }
+
+    private void applyTypingFormat(Editable e, int start, int end) {
+        if (start >= end) return;
+        if (typeBold) TextFormat.setStyle(e, start, end, Typeface.BOLD, true);
+        if (typeItalic) TextFormat.setStyle(e, start, end, Typeface.ITALIC, true);
+        if (typeSizeIdx != TextFormat.DEFAULT_SIZE_IDX) TextFormat.setSize(e, start, end, TextFormat.SIZES[typeSizeIdx]);
+        if (typeColor != null) TextFormat.setColor(e, start, end, typeColor);
+    }
+
+    private void resetTypingFormat() {
+        typeBold = false;
+        typeItalic = false;
+        typeSizeIdx = TextFormat.DEFAULT_SIZE_IDX;
+        typeColor = null;
+    }
+
+    /** Zeigt dezent an, welches Tippformat gerade eingeschaltet ist. */
+    private void updateToolState() {
+        int fg = Palette.textColorFor(Settings.bgColor(this));
+        int hi = (fg & 0x00FFFFFF) | 0x33000000;
+        toolButtons[0].setBackgroundColor(typeBold ? hi : Color.TRANSPARENT);
+        toolButtons[1].setBackgroundColor(typeItalic ? hi : Color.TRANSPARENT);
+        toolButtons[2].setBackgroundColor(typeSizeIdx < TextFormat.DEFAULT_SIZE_IDX ? hi : Color.TRANSPARENT);
+        toolButtons[3].setBackgroundColor(typeSizeIdx > TextFormat.DEFAULT_SIZE_IDX ? hi : Color.TRANSPARENT);
+        toolButtons[4].setTextColor(typeColor != null ? typeColor : fg);
     }
 
     // ---------- Menue ----------

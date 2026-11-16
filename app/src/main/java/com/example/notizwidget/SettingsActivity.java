@@ -49,6 +49,7 @@ public class SettingsActivity extends Activity {
         Switch switchBackup = findViewById(R.id.switch_backup);
         RadioGroup radioFormat = findViewById(R.id.radio_format);
         Button buttonNow = findViewById(R.id.btn_backup_now);
+        Button buttonTest = findViewById(R.id.btn_test_auto);
         TextView versionLabel = findViewById(R.id.version_label);
 
         // Version anzeigen, damit man sieht, welche Fassung installiert ist.
@@ -102,20 +103,32 @@ public class SettingsActivity extends Activity {
 
         switchBackup.setOnCheckedChangeListener((button, checked) -> {
             Settings.setAutoBackup(this, checked);
-            if (checked) Backup.schedule(this);
-            else Backup.cancel(this);
+            if (checked) {
+                Backup.schedule(this);
+                Backup.requestNotificationPermission(this, false);
+            } else {
+                Backup.cancel(this);
+            }
         });
 
         buttonNow.setOnClickListener(v -> {
-            boolean ok = Backup.backupNow(this);
-            Toast.makeText(this, ok
-                    ? "Gesichert in Dokumente/Catatan-Sicherungen"
+            String name = Backup.backupNow(this, false);
+            Toast.makeText(this, name != null
+                    ? "Gesichert: Dokumente/Catatan-Sicherungen/" + name
                     : "Nichts gesichert (Notiz leer oder Speichern fehlgeschlagen)", Toast.LENGTH_LONG).show();
+        });
+
+        buttonTest.setOnClickListener(v -> {
+            Backup.requestNotificationPermission(this, false);
+            Backup.scheduleTest(this);
+            Toast.makeText(this, "Test gestartet: In etwa 1 Minute wird gesichert und eine Benachrichtigung gezeigt. "
+                    + "Der Bildschirm darf gesperrt sein.", Toast.LENGTH_LONG).show();
         });
 
         buildSwatches();
         updatePreview();
         updateBackupLabels();
+        if (Settings.autoBackup(this)) Backup.schedule(this); // Wecker sicherheitshalber neu setzen
     }
 
     @Override

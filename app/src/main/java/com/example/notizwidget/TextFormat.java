@@ -16,7 +16,68 @@ final class TextFormat {
         boolean accept(Object span);
     }
 
+    /** Index der Normalgroesse (Faktor 1) in SIZES. */
+    static final int DEFAULT_SIZE_IDX = 2;
+
     private TextFormat() {}
+
+    /** Stufe, die einem Faktor am naechsten liegt. */
+    static int nearestIndex(float factor) {
+        int idx = 0;
+        float best = Float.MAX_VALUE;
+        for (int i = 0; i < SIZES.length; i++) {
+            float diff = Math.abs(SIZES[i] - factor);
+            if (diff < best) {
+                best = diff;
+                idx = i;
+            }
+        }
+        return idx;
+    }
+
+    /** Fett/kursiv fest setzen (on) oder entfernen, ohne umzuschalten. */
+    static void setStyle(Editable e, int start, int end, final int style, boolean on) {
+        if (start >= end) return;
+        clear(e, StyleSpan.class, start, end, new Filter() {
+            @Override
+            public boolean accept(Object s) {
+                return ((StyleSpan) s).getStyle() == style;
+            }
+        });
+        if (on) put(e, new StyleSpan(style), start, end);
+    }
+
+    /** Groesse fest auf einen Faktor setzen (1 = Standard, entfernt die Groessenangabe). */
+    static void setSize(Editable e, int start, int end, float factor) {
+        if (start >= end) return;
+        clear(e, RelativeSizeSpan.class, start, end, null);
+        if (factor != 1f) put(e, new RelativeSizeSpan(factor), start, end);
+    }
+
+    private static boolean same(Object a, Object b) {
+        if (a instanceof StyleSpan && b instanceof StyleSpan)
+            return ((StyleSpan) a).getStyle() == ((StyleSpan) b).getStyle();
+        if (a instanceof RelativeSizeSpan && b instanceof RelativeSizeSpan)
+            return ((RelativeSizeSpan) a).getSizeChange() == ((RelativeSizeSpan) b).getSizeChange();
+        if (a instanceof ForegroundColorSpan && b instanceof ForegroundColorSpan)
+            return ((ForegroundColorSpan) a).getForegroundColor() == ((ForegroundColorSpan) b).getForegroundColor();
+        return false;
+    }
+
+    /** Setzt einen Span und verlaengert einen gleichen, direkt davor endenden, statt viele Mini-Spans anzuhaeufen. */
+    private static void put(Editable e, Object span, int start, int end) {
+        int s = start;
+        if (start > 0) {
+            for (Object o : e.getSpans(start - 1, start, span.getClass())) {
+                if (e.getSpanEnd(o) == start && same(o, span)) {
+                    s = e.getSpanStart(o);
+                    e.removeSpan(o);
+                    break;
+                }
+            }
+        }
+        e.setSpan(span, s, end, FLAG);
+    }
 
     /** Fett oder kursiv ein- bzw. ausschalten (wenn schon alles markierte so ist, wird es entfernt). */
     static void toggleStyle(Editable e, int start, int end, final int style) {
@@ -40,7 +101,7 @@ final class TextFormat {
                 return ((StyleSpan) s).getStyle() == style;
             }
         });
-        if (!all) e.setSpan(new StyleSpan(style), start, end, FLAG);
+        if (!all) put(e, new StyleSpan(style), start, end);
     }
 
     /** Groesse um eine Stufe aendern (delta = +1 oder -1). */
@@ -65,7 +126,7 @@ final class TextFormat {
     /** Textfarbe setzen; Palette.NO_COLOR entfernt die Farbe wieder. */
     static void setColor(Editable e, int start, int end, int color) {
         clear(e, ForegroundColorSpan.class, start, end, null);
-        if (color != Palette.NO_COLOR) e.setSpan(new ForegroundColorSpan(color), start, end, FLAG);
+        if (color != Palette.NO_COLOR && start < end) put(e, new ForegroundColorSpan(color), start, end);
     }
 
     /** Entfernt jede Formatierung im Bereich (Standardformat); der Rest des Textes bleibt unveraendert. */

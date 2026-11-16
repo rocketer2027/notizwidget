@@ -164,11 +164,17 @@
             android:layout_marginTop="8dp"
             android:text="Jetzt sichern" />
 
+        <Button
+            android:id="@+id/btn_test_auto"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Automatik testen (in ca. 1 Minute)" />
+
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginTop="8dp"
-            android:text="Gespeichert wird im Ordner Dokumente/Catatan-Sicherungen auf dem Handy. Für Google Drive: im Menü der Notiz „Sicherung speichern …“ wählen und dort Drive als Ablageort auswählen."
+            android:text="Gespeichert wird im Ordner Dokumente/Catatan-Sicherungen auf dem Handy. Für Google Drive: im Menü der Notiz „Sicherung speichern …“ wählen und dort Drive als Ablageort auswählen. Bei jeder automatischen Sicherung zeigt Catatan eine Benachrichtigung. Kommt nichts an: In den Android-Einstellungen unter Apps → Catatan → Akku „Nicht eingeschränkt“ wählen und Benachrichtigungen erlauben."
             android:textColor="#666666"
             android:textSize="14sp" />
 

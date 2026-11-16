@@ -1,11 +1,18 @@
 package com.example.notizwidget;
 
+import android.Manifest;
+import android.app.Activity;
 import android.app.AlarmManager;
+import android.app.Notification;
+import android.app.NotificationChannel;
+import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.content.ContentValues;
 import android.content.Context;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Environment;
 import android.provider.MediaStore;
 import android.text.Html;
@@ -28,7 +35,10 @@ import java.util.Locale;
 final class Backup {
     private static final String MARKER = "<!--NOTIZ-DATA:";
     private static final String FOLDER = "Catatan-Sicherungen";
-    private static final long SLACK_MS = 6L * 60 * 60 * 1000; // Toleranz, weil der Wecker nicht auf die Minute feuert
+    private static final String ACTION = "com.example.notizwidget.BACKUP";
+    private static final String CHANNEL = "backup";
+    static final String EXTRA_FORCE = "force";
+    private static final long SLACK_MS = 6L * 60 * 60 * 1000; // Toleranz, falls der Wecker etwas frueher/spaeter feuert
 
     private Backup() {}
 
@@ -86,8 +96,8 @@ final class Backup {
         }
     }
 
-    /** Speichert unter Dokumente/Catatan-Sicherungen (ohne zusaetzliche Berechtigung). */
-    static boolean saveToDocuments(Context c, String content, boolean asText) {
+    /** Speichert unter Dokumente/Catatan-Sicherungen (ohne zusaetzliche Berechtigung). Gibt den Dateinamen zurueck oder null. */
+    static String saveToDocuments(Context c, String content, boolean asText) {
         try {
             String ext = asText ? ".txt" : ".html";
             String name = "Catatan-" + new SimpleDateFormat("yyyy-MM-dd_HH-mm", Locale.GERMANY).format(new Date()) + ext;
@@ -96,37 +106,41 @@ final class Backup {
             v.put(MediaStore.MediaColumns.MIME_TYPE, asText ? "text/plain" : "text/html");
             v.put(MediaStore.MediaColumns.RELATIVE_PATH, Environment.DIRECTORY_DOCUMENTS + "/" + FOLDER);
             Uri uri = c.getContentResolver().insert(MediaStore.Files.getContentUri("external"), v);
-            if (uri == null) return false;
-            return writeToUri(c, uri, content);
+            if (uri == null) return null;
+            return writeToUri(c, uri, content) ? name : null;
         } catch (Exception e) {
-            return false;
+            return null;
         }
     }
 
-    /** Sichert die aktuelle Notiz sofort im eingestellten Format. false, wenn leer oder fehlgeschlagen. */
-    static boolean backupNow(Context c) {
+    /**
+     * Sichert die aktuelle Notiz sofort im eingestellten Format. Gibt den Dateinamen zurueck,
+     * null bei leerer Notiz oder Fehler. Nur automatische Sicherungen verschieben den Rhythmus.
+     */
+    static String backupNow(Context c, boolean countForSchedule) {
         SpannableStringBuilder note = NoteStore.load(c);
-        if (note.toString().trim().isEmpty()) return false;
+        if (note.toString().trim().isEmpty()) return null;
         boolean asText = "txt".equals(Settings.backupFormat(c));
         String content = asText ? note.toString() : toHtml(note);
-        boolean ok = saveToDocuments(c, content, asText);
-        if (ok) {
-            Settings.setLastBackup(c, System.currentTimeMillis(), String.valueOf(NoteStore.loadRaw(c).hashCode()));
+        String name = saveToDocuments(c, content, asText);
+        if (name != null && countForSchedule) {
+            Settings.setLastBackup(c, System.currentTimeMillis(), "");
         }
-        return ok;
+        return name;
     }
 
     // ---------- Automatik ----------
 
-    private static PendingIntent alarmIntent(Context c) {
-        Intent i = new Intent(c, BackupReceiver.class).setAction("com.example.notizwidget.BACKUP");
-        return PendingIntent.getBroadcast(c, 77, i,
+    private static PendingIntent alarmIntent(Context c, boolean force) {
+        Intent i = new Intent(c, BackupReceiver.class).setAction(ACTION);
+        if (force) i.putExtra(EXTRA_FORCE, true);
+        return PendingIntent.getBroadcast(c, force ? 78 : 77, i,
                 PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE);
     }
 
     /**
-     * Taeglicher Wecker zur eingestellten Uhrzeit. Gesichert wird nur, wenn seit der letzten
-     * Sicherung der eingestellte Rhythmus (Tage) vergangen ist.
+     * Setzt den Wecker fuer die naechste eingestellte Uhrzeit. Der Wecker darf auch im Ruhezustand
+     * (Doze) ausloesen. Nach jedem Ausloesen setzt der Empfaenger den naechsten Wecker neu.
      */
     static void schedule(Context c) {
         try {
@@ -137,32 +151,85 @@ final class Backup {
             cal.set(Calendar.MINUTE, Settings.backupMinute(c));
             cal.set(Calendar.SECOND, 0);
             cal.set(Calendar.MILLISECOND, 0);
-            if (cal.getTimeInMillis() <= System.currentTimeMillis()) cal.add(Calendar.DAY_OF_YEAR, 1);
-            am.setInexactRepeating(AlarmManager.RTC_WAKEUP, cal.getTimeInMillis(),
-                    AlarmManager.INTERVAL_DAY, alarmIntent(c));
+            if (cal.getTimeInMillis() <= System.currentTimeMillis() + 5000) cal.add(Calendar.DAY_OF_YEAR, 1);
+            PendingIntent pi = alarmIntent(c, false);
+            am.cancel(pi);
+            am.setAndAllowWhileIdle(AlarmManager.RTC_WAKEUP, cal.getTimeInMillis(), pi);
         } catch (Exception ignored) {
             // Sicherung ist ein Zusatz und darf die App nie stoeren.
+        }
+    }
+
+    /** Testlauf: in ca. 1 Minute genau derselbe Weg wie bei der echten Automatik (ohne Rhythmus-Pruefung). */
+    static void scheduleTest(Context c) {
+        try {
+            AlarmManager am = (AlarmManager) c.getSystemService(Context.ALARM_SERVICE);
+            if (am == null) return;
+            am.setAndAllowWhileIdle(AlarmManager.RTC_WAKEUP, System.currentTimeMillis() + 60_000L,
+                    alarmIntent(c, true));
+        } catch (Exception ignored) {
+            // egal
         }
     }
 
     static void cancel(Context c) {
         try {
             AlarmManager am = (AlarmManager) c.getSystemService(Context.ALARM_SERVICE);
-            if (am != null) am.cancel(alarmIntent(c));
+            if (am != null) am.cancel(alarmIntent(c, false));
         } catch (Exception ignored) {
             // egal
         }
     }
 
-    /** Wird vom Wecker aufgerufen. */
-    static void runIfDue(Context c) {
-        if (!Settings.autoBackup(c)) return;
-        String raw = NoteStore.loadRaw(c);
-        if (NoteStore.deserialize(raw).toString().trim().isEmpty()) return;
+    /** Wird vom Wecker aufgerufen. force = Testlauf. */
+    static void runAuto(Context c, boolean force) {
+        if (!force && !Settings.autoBackup(c)) return;
+        if (NoteStore.deserialize(NoteStore.loadRaw(c)).toString().trim().isEmpty()) {
+            if (force) notifyResult(c, "Nichts gesichert: Die Notiz ist leer.");
+            return;
+        }
         long now = System.currentTimeMillis();
         long gap = Settings.backupDays(c) * 24L * 60 * 60 * 1000 - SLACK_MS;
-        if (now - Settings.lastBackupTime(c) < gap) return;
-        if (String.valueOf(raw.hashCode()).equals(Settings.lastBackupHash(c))) return; // nichts geaendert
-        backupNow(c);
+        if (!force && now - Settings.lastBackupTime(c) < gap) return; // noch nicht wieder dran
+        String name = backupNow(c, !force);
+        notifyResult(c, name != null
+                ? "Automatische Sicherung gespeichert: " + name
+                : "Automatische Sicherung fehlgeschlagen.");
+    }
+
+    // ---------- Benachrichtigung ----------
+
+    /** Fragt (ab Android 13) einmalig nach der Erlaubnis, Benachrichtigungen zu zeigen. */
+    static void requestNotificationPermission(Activity a, boolean onlyOnce) {
+        if (Build.VERSION.SDK_INT < 33) return;
+        if (a.checkSelfPermission(Manifest.permission.POST_NOTIFICATIONS) == PackageManager.PERMISSION_GRANTED) return;
+        if (onlyOnce) {
+            android.content.SharedPreferences p = a.getSharedPreferences("app", Context.MODE_PRIVATE);
+            if (p.getBoolean("askedNotifications", false)) return;
+            p.edit().putBoolean("askedNotifications", true).apply();
+        }
+        a.requestPermissions(new String[]{Manifest.permission.POST_NOTIFICATIONS}, 5);
+    }
+
+    static void notifyResult(Context c, String text) {
+        try {
+            NotificationManager nm = c.getSystemService(NotificationManager.class);
+            if (nm == null) return;
+            nm.createNotificationChannel(new NotificationChannel(CHANNEL, "Sicherung", NotificationManager.IMPORTANCE_DEFAULT));
+            Intent open = new Intent(c, MainActivity.class).addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+            PendingIntent pi = PendingIntent.getActivity(c, 2, open,
+                    PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE);
+            Notification n = new Notification.Builder(c, CHANNEL)
+                    .setSmallIcon(R.drawable.ic_notification)
+                    .setContentTitle("Catatan")
+                    .setContentText(text)
+                    .setStyle(new Notification.BigTextStyle().bigText(text))
+                    .setContentIntent(pi)
+                    .setAutoCancel(true)
+                    .build();
+            nm.notify(1001, n);
+        } catch (Exception ignored) {
+            // Fehlende Erlaubnis o. ae.: Sicherung selbst ist trotzdem erfolgt.
+        }
     }
 }
