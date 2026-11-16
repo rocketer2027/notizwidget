@@ -146,6 +146,8 @@ public class MainActivity extends Activity {
             }
         });
 
+        showSplashOnFirstStart();
+
         if (Settings.autoBackup(this)) {
             Backup.schedule(this);
             Backup.requestNotificationPermission(this, true);
@@ -389,6 +391,60 @@ public class MainActivity extends Activity {
         });
     }
 
+    // ---------- Splash (nur beim allerersten Start) ----------
+
+    private void showSplashOnFirstStart() {
+        android.content.SharedPreferences sp = getSharedPreferences("app", MODE_PRIVATE);
+        if (sp.getBoolean("splashShown", false)) return;
+        sp.edit().putBoolean("splashShown", true).apply();
+
+        int bg = Settings.bgColor(this);
+        int fg = Palette.textColorFor(bg);
+
+        final android.widget.LinearLayout splash = new android.widget.LinearLayout(this);
+        splash.setOrientation(android.widget.LinearLayout.VERTICAL);
+        splash.setGravity(android.view.Gravity.CENTER);
+        splash.setBackgroundColor(bg);
+        splash.setClickable(true); // faengt Beruehrungen ab, Tippen schliesst den Splash
+
+        TextView title = new TextView(this);
+        title.setText(getString(R.string.app_name));
+        title.setTextColor(fg);
+        title.setTextSize(TypedValue.COMPLEX_UNIT_SP, 40);
+        title.setTypeface(Typeface.DEFAULT_BOLD);
+        title.setGravity(android.view.Gravity.CENTER);
+
+        TextView author = new TextView(this);
+        author.setText("by Tobias Siebert");
+        author.setTextColor(fg);
+        author.setAlpha(0.7f);
+        author.setTextSize(TypedValue.COMPLEX_UNIT_SP, 16);
+        author.setGravity(android.view.Gravity.CENTER);
+        author.setPadding(0, Palette.dp(this, 8), 0, 0);
+
+        splash.addView(title);
+        splash.addView(author);
+        addContentView(splash, new android.view.ViewGroup.LayoutParams(
+                android.view.ViewGroup.LayoutParams.MATCH_PARENT,
+                android.view.ViewGroup.LayoutParams.MATCH_PARENT));
+
+        final Runnable dismiss = new Runnable() {
+            boolean done;
+
+            @Override
+            public void run() {
+                if (done) return;
+                done = true;
+                splash.animate().alpha(0f).setDuration(400).withEndAction(() -> {
+                    android.view.ViewGroup parent = (android.view.ViewGroup) splash.getParent();
+                    if (parent != null) parent.removeView(splash);
+                }).start();
+            }
+        };
+        splash.setOnClickListener(v -> dismiss.run());
+        splash.postDelayed(dismiss, 2000);
+    }
+
     // ---------- Sprachdiktat ----------
 
     private void startDictation() {
@@ -413,6 +469,9 @@ public class MainActivity extends Activity {
         String ins = spoken.trim();
         if (a > 0 && !Character.isWhitespace(e.charAt(a - 1))) ins = " " + ins;
         e.replace(a, b, ins);
+        // Sofort speichern: onResume vergleicht Editor und Speicher und wuerde sonst den
+        // frisch diktierten Text durch den alten gespeicherten Stand ersetzen.
+        NoteStore.save(this, editor.getText());
     }
 
     private void applyTypingFormat(Editable e, int start, int end) {
@@ -558,7 +617,7 @@ public class MainActivity extends Activity {
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
         if (requestCode == REQ_SPEECH) {
-            if (resultCode == RESULT_OK && data != null) {
+            if (data != null) {
                 java.util.ArrayList<String> r =
                         data.getStringArrayListExtra(android.speech.RecognizerIntent.EXTRA_RESULTS);
                 if (r != null && !r.isEmpty()) insertDictation(r.get(0));

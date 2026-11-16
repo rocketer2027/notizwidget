@@ -1,4 +1,4 @@
-Catatan Version 2.7 - Kurzanleitung
+Catatan Version 2.8 - Kurzanleitung
 ================================
 
 WICHTIG beim ersten Update von Version 1
@@ -9,6 +9,10 @@ WICHTIG beim ersten Update von Version 1
     2. Alte App "Notiz" deinstallieren.
     3. Neue APK installieren, Text einfuegen, Widget neu auf den Homescreen ziehen.
   Ab dann gehen alle weiteren Updates direkt drueber, ohne Datenverlust.
+
+Neu in 2.8
+  - Diktat repariert: Der gesprochene Text wird jetzt zuverlaessig in die Notiz uebernommen und sofort gespeichert.
+  - Splash-Screen beim allerersten Start mit "by Tobias Siebert" (verschwindet nach 2 Sekunden oder per Tippen).
 
 Neu in 2.7
   - Groessen-Knopf: Markierst du Text, zeigt er automatisch dessen Groesse. Ohne Markierung steht in der
