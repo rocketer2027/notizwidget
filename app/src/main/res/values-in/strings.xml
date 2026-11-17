@@ -77,4 +77,24 @@
     <string name="set_backup_hint">Cadangan disimpan di folder Documents/Catatan-Sicherungen pada ponsel. Untuk Google Drive: pilih “Simpan cadangan …” di menu catatan lalu pilih Drive sebagai lokasi. Catatan menampilkan notifikasi setiap kali cadangan otomatis dibuat. Jika tidak ada yang muncul: di pengaturan Android, buka Aplikasi → Catatan → Baterai, pilih “Tidak dibatasi” dan izinkan notifikasi.</string>
     <string name="set_email_label">Alamat email saya (untuk “Kirim lewat email”)</string>
     <string name="tb_color">Warna</string>
+    <string name="menu_transfer">Pindahkan ke perangkat lain …</string>
+    <string name="transfer_title">Transfer lewat Wi-Fi</string>
+    <string name="transfer_intro">Menyalin catatan saat ini 1:1 ke ponsel atau tablet lain. Kedua perangkat harus berada di Wi-Fi yang sama (atau salah satunya di hotspot yang lain).</string>
+    <string name="transfer_send">Kirim (tampilkan kode QR)</string>
+    <string name="transfer_receive">Terima (pindai kode QR)</string>
+    <string name="transfer_send_hint">Di perangkat lain buka Catatan → menu → “Pindahkan ke perangkat lain” → “Terima” lalu pindai kode ini. Biarkan layar ini tetap terbuka.</string>
+    <string name="transfer_waiting">Menunggu perangkat lain …</string>
+    <string name="transfer_no_wifi">Wi-Fi tidak ditemukan. Sambungkan ke Wi-Fi atau aktifkan hotspot.</string>
+    <string name="transfer_sent">Terkirim. Catatan kini ada di perangkat lain.</string>
+    <string name="transfer_timeout">Waktu habis. Silakan mulai lagi.</string>
+    <string name="transfer_connecting">Menyambung dan menerima …</string>
+    <string name="transfer_confirm_title">Ganti catatan?</string>
+    <string name="transfer_confirm_msg">Catatan di perangkat ini akan diganti dengan yang diterima. Versi sebelumnya tetap ada di riwayat.</string>
+    <string name="transfer_replace">Ganti</string>
+    <string name="transfer_done">Catatan diterima</string>
+    <string name="transfer_failed">Transfer gagal. Apakah kedua perangkat di Wi-Fi yang sama?</string>
+    <string name="transfer_bad_code">Ini bukan kode Catatan</string>
+    <string name="transfer_scan_unavailable">Pemindai tidak tersedia. Masukkan kode secara manual?</string>
+    <string name="transfer_enter_code">Masukkan kode</string>
+    <string name="transfer_back">Kembali</string>
 </resources>

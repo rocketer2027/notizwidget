@@ -77,4 +77,24 @@
     <string name="set_backup_hint">Serep disimpen ing folder Documents/Catatan-Sicherungen ing ponsel. Kanggo Google Drive: pilih “Simpen serep …” ing menu cathetan banjur pilih Drive minangka panggonan. Catatan nuduhake kabar saben serep otomatis digawe. Yen ora ana sing metu: ing pangaturan Android, bukak Aplikasi → Catatan → Baterai, pilih “Ora diwatesi” lan olehna kabar.</string>
     <string name="set_email_label">Alamat email-ku (kanggo “Kirim liwat email”)</string>
     <string name="tb_color">Warna</string>
+    <string name="menu_transfer">Pindhahna menyang piranti liya …</string>
+    <string name="transfer_title">Transfer liwat Wi-Fi</string>
+    <string name="transfer_intro">Nyalin cathetan saiki 1:1 menyang ponsel utawa tablet liyane. Kaloro piranti kudu ing Wi-Fi sing padha (utawa siji ing hotspot liyane).</string>
+    <string name="transfer_send">Kirim (tuduhna kode QR)</string>
+    <string name="transfer_receive">Tampa (pindai kode QR)</string>
+    <string name="transfer_send_hint">Ing piranti liyane bukak Catatan → menu → “Pindhahna menyang piranti liya” → “Tampa” banjur pindai kode iki. Layar iki aja ditutup.</string>
+    <string name="transfer_waiting">Ngenteni piranti liyane …</string>
+    <string name="transfer_no_wifi">Wi-Fi ora ditemokake. Sambungna menyang Wi-Fi utawa urubna hotspot.</string>
+    <string name="transfer_sent">Wis kekirim. Cathetan saiki ana ing piranti liyane.</string>
+    <string name="transfer_timeout">Wektu entek. Mangga diwiwiti maneh.</string>
+    <string name="transfer_connecting">Nyambung lan nampa …</string>
+    <string name="transfer_confirm_title">Ganti cathetan?</string>
+    <string name="transfer_confirm_msg">Cathetan ing piranti iki bakal diganti karo sing ditampa. Versi sadurunge isih ana ing riwayat.</string>
+    <string name="transfer_replace">Ganti</string>
+    <string name="transfer_done">Cathetan ditampa</string>
+    <string name="transfer_failed">Transfer gagal. Apa kaloro piranti ing Wi-Fi sing padha?</string>
+    <string name="transfer_bad_code">Iki dudu kode Catatan</string>
+    <string name="transfer_scan_unavailable">Pemindai ora kasedhiya. Lebokna kode kanthi manual?</string>
+    <string name="transfer_enter_code">Lebokna kode</string>
+    <string name="transfer_back">Bali</string>
 </resources>

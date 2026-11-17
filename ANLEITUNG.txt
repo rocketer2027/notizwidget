@@ -1,4 +1,4 @@
-Catatan Version 2.8 - Kurzanleitung
+Catatan Version 3.0 - Kurzanleitung
 ================================
 
 WICHTIG beim ersten Update von Version 1
@@ -9,6 +9,20 @@ WICHTIG beim ersten Update von Version 1
     2. Alte App "Notiz" deinstallieren.
     3. Neue APK installieren, Text einfuegen, Widget neu auf den Homescreen ziehen.
   Ab dann gehen alle weiteren Updates direkt drueber, ohne Datenverlust.
+
+Neu in 3.0
+  - Uebertragen per WLAN: Menue (drei Punkte) -> "Auf anderes Gerät übertragen".
+    Altes Geraet: "Senden" -> QR-Code erscheint. Neues Geraet: gleiches Menue -> "Empfangen" -> Code scannen.
+    Die Notiz (mit Formatierung) wird 1:1 uebertragen, nach Rueckfrage ersetzt sie die Notiz auf dem Zielgeraet
+    (die alte Fassung bleibt im Verlauf). Beide Geraete muessen im selben WLAN sein (oder eines im Hotspot des
+    anderen). Die Daten gehen nur im lokalen Netz, verschluesselt, nichts ueber das Internet.
+    Der Scanner nutzt Google Play-Dienste; ist er nicht da, kann der Code von Hand eingegeben werden.
+  - "Zu Catatan hinzufuegen" im Textauswahl- und Teilen-Menue: Prioritaet gesetzt. Die Reihenfolge
+    bestimmt aber Android bzw. der Handyhersteller; ob die Aktion weiter vorn erscheint, haengt vom Geraet ab.
+
+Neu in 2.9
+  - Logo im Splash-Screen (freigestellt, transparenter Hintergrund) statt des reinen Textes.
+  - Kleines Logo dauerhaft mittig in der Kopfzeile des Editors, dezent und nicht klickbar.
 
 Neu in 2.8
   - Diktat repariert: Der gesprochene Text wird jetzt zuverlaessig in die Notiz uebernommen und sofort gespeichert.

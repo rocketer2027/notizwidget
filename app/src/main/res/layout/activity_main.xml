@@ -5,6 +5,10 @@
     android:layout_height="match_parent"
     android:orientation="vertical">
 
+    <FrameLayout
+        android:layout_width="match_parent"
+        android:layout_height="48dp">
+
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="48dp"
@@ -54,6 +58,20 @@
             android:text="⋮"
             android:textSize="26sp" />
     </LinearLayout>
+
+        <!-- Kleines Logo, mittig oben: dezent und nicht klickbar -->
+        <ImageView
+            android:id="@+id/header_logo"
+            android:layout_width="wrap_content"
+            android:layout_height="30dp"
+            android:layout_gravity="center"
+            android:adjustViewBounds="true"
+            android:alpha="0.85"
+            android:contentDescription="@null"
+            android:importantForAccessibility="no"
+            android:scaleType="fitCenter"
+            android:src="@drawable/logo" />
+    </FrameLayout>
 
     <!-- Suchleiste: nur sichtbar, wenn man über die Lupe sucht -->
     <LinearLayout

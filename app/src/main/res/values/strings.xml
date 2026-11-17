@@ -82,4 +82,24 @@
     <string name="set_backup_hint">Gespeichert wird im Ordner Dokumente/Catatan-Sicherungen auf dem Handy. Für Google Drive: im Menü der Notiz „Sicherung speichern …“ wählen und dort Drive als Ablageort auswählen. Bei jeder automatischen Sicherung zeigt Catatan eine Benachrichtigung. Kommt nichts an: In den Android-Einstellungen unter Apps → Catatan → Akku „Nicht eingeschränkt“ wählen und Benachrichtigungen erlauben.</string>
     <string name="set_email_label">Meine E-Mail-Adresse (für „Per E-Mail senden“)</string>
     <string name="tb_color">Farbe</string>
+    <string name="menu_transfer">Auf anderes Gerät übertragen …</string>
+    <string name="transfer_title">Übertragen per WLAN</string>
+    <string name="transfer_intro">Überträgt die aktuelle Notiz 1:1 auf ein anderes Smartphone oder Tablet. Beide Geräte müssen im selben WLAN sein (oder das eine im Hotspot des anderen).</string>
+    <string name="transfer_send">Senden (QR-Code zeigen)</string>
+    <string name="transfer_receive">Empfangen (QR-Code scannen)</string>
+    <string name="transfer_send_hint">Öffne auf dem anderen Gerät Catatan → Menü → „Auf anderes Gerät übertragen“ → „Empfangen“ und scanne diesen Code. Dieser Bildschirm muss offen bleiben.</string>
+    <string name="transfer_waiting">Warte auf das andere Gerät …</string>
+    <string name="transfer_no_wifi">Kein WLAN gefunden. Verbinde das Gerät mit einem WLAN oder schalte den Hotspot ein.</string>
+    <string name="transfer_sent">Übertragen. Die Notiz ist jetzt auf dem anderen Gerät.</string>
+    <string name="transfer_timeout">Zeit abgelaufen. Bitte neu starten.</string>
+    <string name="transfer_connecting">Verbinde und empfange …</string>
+    <string name="transfer_confirm_title">Notiz ersetzen?</string>
+    <string name="transfer_confirm_msg">Die Notiz auf diesem Gerät wird durch die empfangene ersetzt. Die bisherige Fassung bleibt im Verlauf abrufbar.</string>
+    <string name="transfer_replace">Ersetzen</string>
+    <string name="transfer_done">Notiz übernommen</string>
+    <string name="transfer_failed">Übertragung fehlgeschlagen. Sind beide Geräte im selben WLAN?</string>
+    <string name="transfer_bad_code">Das ist kein Catatan-Code</string>
+    <string name="transfer_scan_unavailable">Der Scanner ist nicht verfügbar. Code von Hand eingeben?</string>
+    <string name="transfer_enter_code">Code eingeben</string>
+    <string name="transfer_back">Zurück</string>
 </resources>

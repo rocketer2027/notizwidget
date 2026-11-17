@@ -77,4 +77,24 @@
     <string name="set_backup_hint">Backups are saved in the folder Documents/Catatan-Sicherungen on your phone. For Google Drive: choose “Save backup …” in the note menu and pick Drive as the location. Catatan shows a notification for every automatic backup. If nothing arrives: in Android settings under Apps → Catatan → Battery choose “Unrestricted” and allow notifications.</string>
     <string name="set_email_label">My email address (for “Send by email”)</string>
     <string name="tb_color">Color</string>
+    <string name="menu_transfer">Transfer to another device …</string>
+    <string name="transfer_title">Transfer via Wi-Fi</string>
+    <string name="transfer_intro">Copies the current note 1:1 to another phone or tablet. Both devices must be on the same Wi-Fi (or one in the other\'s hotspot).</string>
+    <string name="transfer_send">Send (show QR code)</string>
+    <string name="transfer_receive">Receive (scan QR code)</string>
+    <string name="transfer_send_hint">On the other device open Catatan → menu → “Transfer to another device” → “Receive” and scan this code. Keep this screen open.</string>
+    <string name="transfer_waiting">Waiting for the other device …</string>
+    <string name="transfer_no_wifi">No Wi-Fi found. Connect to a Wi-Fi network or turn on the hotspot.</string>
+    <string name="transfer_sent">Transferred. The note is now on the other device.</string>
+    <string name="transfer_timeout">Time ran out. Please start again.</string>
+    <string name="transfer_connecting">Connecting and receiving …</string>
+    <string name="transfer_confirm_title">Replace note?</string>
+    <string name="transfer_confirm_msg">The note on this device will be replaced by the received one. The previous version stays available in the history.</string>
+    <string name="transfer_replace">Replace</string>
+    <string name="transfer_done">Note received</string>
+    <string name="transfer_failed">Transfer failed. Are both devices on the same Wi-Fi?</string>
+    <string name="transfer_bad_code">This is not a Catatan code</string>
+    <string name="transfer_scan_unavailable">The scanner is not available. Enter the code manually?</string>
+    <string name="transfer_enter_code">Enter code</string>
+    <string name="transfer_back">Back</string>
 </resources>

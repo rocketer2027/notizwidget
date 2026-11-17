@@ -399,7 +399,6 @@ public class MainActivity extends Activity {
         sp.edit().putBoolean("splashShown", true).apply();
 
         int bg = Settings.bgColor(this);
-        int fg = Palette.textColorFor(bg);
 
         final android.widget.LinearLayout splash = new android.widget.LinearLayout(this);
         splash.setOrientation(android.widget.LinearLayout.VERTICAL);
@@ -407,23 +406,14 @@ public class MainActivity extends Activity {
         splash.setBackgroundColor(bg);
         splash.setClickable(true); // faengt Beruehrungen ab, Tippen schliesst den Splash
 
-        TextView title = new TextView(this);
-        title.setText(getString(R.string.app_name));
-        title.setTextColor(fg);
-        title.setTextSize(TypedValue.COMPLEX_UNIT_SP, 40);
-        title.setTypeface(Typeface.DEFAULT_BOLD);
-        title.setGravity(android.view.Gravity.CENTER);
-
-        TextView author = new TextView(this);
-        author.setText("by Tobias Siebert");
-        author.setTextColor(fg);
-        author.setAlpha(0.7f);
-        author.setTextSize(TypedValue.COMPLEX_UNIT_SP, 16);
-        author.setGravity(android.view.Gravity.CENTER);
-        author.setPadding(0, Palette.dp(this, 8), 0, 0);
-
-        splash.addView(title);
-        splash.addView(author);
+        ImageView logo = new ImageView(this);
+        logo.setImageResource(R.drawable.logo);
+        logo.setAdjustViewBounds(true);
+        logo.setScaleType(ImageView.ScaleType.FIT_CENTER);
+        int logoW = Math.min(Palette.dp(this, 260),
+                (int) (getResources().getDisplayMetrics().widthPixels * 0.7f));
+        splash.addView(logo, new android.widget.LinearLayout.LayoutParams(
+                logoW, android.view.ViewGroup.LayoutParams.WRAP_CONTENT));
         addContentView(splash, new android.view.ViewGroup.LayoutParams(
                 android.view.ViewGroup.LayoutParams.MATCH_PARENT,
                 android.view.ViewGroup.LayoutParams.MATCH_PARENT));
@@ -506,6 +496,7 @@ public class MainActivity extends Activity {
         m.add(0, 4, 3, getString(R.string.menu_history));
         m.add(0, 5, 4, getString(R.string.menu_save_backup));
         m.add(0, 6, 5, getString(R.string.menu_open_backup));
+        m.add(0, 7, 6, getString(R.string.menu_transfer));
         pm.setOnMenuItemClickListener(item -> {
             switch (item.getItemId()) {
                 case 1:
@@ -525,6 +516,10 @@ public class MainActivity extends Activity {
                     break;
                 case 6:
                     openBackup();
+                    break;
+                case 7:
+                    NoteStore.save(this, editor.getText()); // aktuellen Stand sichern, bevor er gesendet wird
+                    startActivity(new Intent(this, TransferActivity.class));
                     break;
                 default:
                     return false;
