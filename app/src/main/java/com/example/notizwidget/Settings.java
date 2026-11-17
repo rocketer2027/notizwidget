@@ -40,6 +40,19 @@ final class Settings {
         return darkMode(c) ? R.style.AppThemeDark : R.style.AppTheme;
     }
 
+    /** Gewaehltes Logo: 0 = Gold (Standard), 1 = Blau. */
+    static int logo(Context c) {
+        return Math.max(0, Math.min(1, p(c).getInt("logo", 0)));
+    }
+
+    static void setLogo(Context c, int index) {
+        p(c).edit().putInt("logo", index).apply();
+    }
+
+    static int logoRes(Context c) {
+        return logo(c) == 1 ? R.drawable.logo_blue : R.drawable.logo;
+    }
+
     /** "de", "en", "id" oder "jv". */
     static String language(Context c) {
         return p(c).getString("lang", "de");

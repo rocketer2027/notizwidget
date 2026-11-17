@@ -97,4 +97,7 @@
     <string name="transfer_scan_unavailable">The scanner is not available. Enter the code manually?</string>
     <string name="transfer_enter_code">Enter code</string>
     <string name="transfer_back">Back</string>
+    <string name="set_logo">Logo</string>
+    <string name="logo_gold">Gold</string>
+    <string name="logo_blue">Blue</string>
 </resources>

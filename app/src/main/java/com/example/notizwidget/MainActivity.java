@@ -213,6 +213,7 @@ public class MainActivity extends Activity {
             ((TextView) findViewById(id)).setTextColor(fg);
         for (TextView t : toolButtons) t.setTextColor(fg);
         applySystemBars(bg);
+        ((ImageView) findViewById(R.id.header_logo)).setImageResource(Settings.logoRes(this));
         updateToolState();
     }
 
@@ -407,7 +408,7 @@ public class MainActivity extends Activity {
         splash.setClickable(true); // faengt Beruehrungen ab, Tippen schliesst den Splash
 
         ImageView logo = new ImageView(this);
-        logo.setImageResource(R.drawable.logo);
+        logo.setImageResource(Settings.logoRes(this));
         logo.setAdjustViewBounds(true);
         logo.setScaleType(ImageView.ScaleType.FIT_CENTER);
         int logoW = Math.min(Palette.dp(this, 260),

@@ -23,6 +23,11 @@ import java.util.Locale;
 /** Einstellungen: Aussehen des Widgets, automatische Sicherung, E-Mail-Adresse. */
 public class SettingsActivity extends Activity {
 
+    private static final int[] LOGO_RES = {R.drawable.logo, R.drawable.logo_blue};
+    private static final int[] LOGO_NAME = {R.string.logo_gold, R.string.logo_blue};
+
+    private final android.widget.ImageView[] logoViews = new android.widget.ImageView[2];
+
     private static final int MIN_SIZE = 10; // sp, SeekBar 0..20 ergibt 10..30
 
     private LinearLayout swatchRow;
@@ -151,6 +156,8 @@ public class SettingsActivity extends Activity {
                     .show();
         });
 
+        buildLogoRow();
+
         buttonTime.setOnClickListener(v -> new TimePickerDialog(this, (view, hour, minute) -> {
             Settings.setBackupTime(this, hour, minute);
             updateBackupLabels();
@@ -212,6 +219,45 @@ public class SettingsActivity extends Activity {
                     updatePreview();
                 }
             }));
+        }
+    }
+
+    /** Zwei Logos zum Antippen; das gewaehlte bekommt einen Rahmen. */
+    private void buildLogoRow() {
+        LinearLayout row = findViewById(R.id.logo_row);
+        for (int i = 0; i < LOGO_RES.length; i++) {
+            final int index = i;
+            android.widget.ImageView iv = new android.widget.ImageView(this);
+            iv.setImageResource(LOGO_RES[i]);
+            iv.setAdjustViewBounds(true);
+            iv.setScaleType(android.widget.ImageView.ScaleType.FIT_CENTER);
+            iv.setContentDescription(getString(LOGO_NAME[i]));
+            int pad = Palette.dp(this, 6);
+            iv.setPadding(pad, pad, pad, pad);
+            iv.setOnClickListener(v -> {
+                Settings.setLogo(this, index);
+                refreshLogoRow();
+            });
+            int size = Palette.dp(this, 96);
+            LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(size, size);
+            lp.setMarginEnd(Palette.dp(this, 12));
+            row.addView(iv, lp);
+            logoViews[i] = iv;
+        }
+        refreshLogoRow();
+    }
+
+    private void refreshLogoRow() {
+        int selected = Settings.logo(this);
+        TypedValue tv = new TypedValue();
+        getTheme().resolveAttribute(android.R.attr.colorAccent, tv, true);
+        int accent = tv.data;
+        for (int i = 0; i < logoViews.length; i++) {
+            android.graphics.drawable.GradientDrawable g = new android.graphics.drawable.GradientDrawable();
+            g.setCornerRadius(Palette.dp(this, 12));
+            if (i == selected) g.setStroke(Palette.dp(this, 3), accent);
+            else g.setStroke(Palette.dp(this, 1), 0x66888888);
+            logoViews[i].setBackground(g);
         }
     }
 

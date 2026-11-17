@@ -97,4 +97,7 @@
     <string name="transfer_scan_unavailable">Pemindai ora kasedhiya. Lebokna kode kanthi manual?</string>
     <string name="transfer_enter_code">Lebokna kode</string>
     <string name="transfer_back">Bali</string>
+    <string name="set_logo">Logo</string>
+    <string name="logo_gold">Emas</string>
+    <string name="logo_blue">Biru</string>
 </resources>

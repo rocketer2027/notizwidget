@@ -102,4 +102,7 @@
     <string name="transfer_scan_unavailable">Der Scanner ist nicht verfügbar. Code von Hand eingeben?</string>
     <string name="transfer_enter_code">Code eingeben</string>
     <string name="transfer_back">Zurück</string>
+    <string name="set_logo">Logo</string>
+    <string name="logo_gold">Gold</string>
+    <string name="logo_blue">Blau</string>
 </resources>

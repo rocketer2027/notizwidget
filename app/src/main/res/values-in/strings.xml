@@ -97,4 +97,7 @@
     <string name="transfer_scan_unavailable">Pemindai tidak tersedia. Masukkan kode secara manual?</string>
     <string name="transfer_enter_code">Masukkan kode</string>
     <string name="transfer_back">Kembali</string>
+    <string name="set_logo">Logo</string>
+    <string name="logo_gold">Emas</string>
+    <string name="logo_blue">Biru</string>
 </resources>
