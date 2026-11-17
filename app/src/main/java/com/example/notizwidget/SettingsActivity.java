@@ -236,6 +236,7 @@ public class SettingsActivity extends Activity {
             iv.setPadding(pad, pad, pad, pad);
             iv.setOnClickListener(v -> {
                 Settings.setLogo(this, index);
+                Settings.applySplashTheme(this);
                 refreshLogoRow();
             });
             int size = Palette.dp(this, 96);

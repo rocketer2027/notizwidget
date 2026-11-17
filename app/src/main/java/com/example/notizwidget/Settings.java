@@ -49,6 +49,20 @@ final class Settings {
         p(c).edit().putInt("logo", index).apply();
     }
 
+    /**
+     * Android 13+: Das Startbild (System-Splash) uebernimmt das gewaehlte Logo ab dem naechsten Start.
+     * Auf aelteren Versionen laesst sich das Startbild nicht umstellen (dort bleibt es Gold).
+     */
+    static void applySplashTheme(android.app.Activity a) {
+        if (android.os.Build.VERSION.SDK_INT < 33) return;
+        try {
+            a.getSplashScreen().setSplashScreenTheme(
+                    logo(a) == 1 ? R.style.StartThemeBlue : R.style.StartTheme);
+        } catch (Exception ignored) {
+            // Startbild ist nur Zierde: Fehler hier duerfen nichts blockieren.
+        }
+    }
+
     static int logoRes(Context c) {
         return logo(c) == 1 ? R.drawable.logo_blue : R.drawable.logo;
     }

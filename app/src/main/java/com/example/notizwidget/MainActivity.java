@@ -75,6 +75,7 @@ public class MainActivity extends Activity {
         setTheme(Settings.themeRes(this));
         super.onCreate(savedInstanceState);
         uiStamp = uiStamp();
+        Settings.applySplashTheme(this);
         setContentView(R.layout.activity_main);
 
         root = findViewById(R.id.root);

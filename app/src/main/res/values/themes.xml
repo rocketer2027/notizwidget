@@ -1,9 +1,22 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <style name="AppTheme" parent="@android:style/Theme.Material.Light.NoActionBar" />
+    <style name="AppTheme" parent="@android:style/Theme.Material.Light.NoActionBar">
+        <item name="android:windowBackground">?android:attr/colorBackground</item>
+    </style>
 
     <!-- Dunkelmodus -->
-    <style name="AppThemeDark" parent="@android:style/Theme.Material.NoActionBar" />
+    <style name="AppThemeDark" parent="@android:style/Theme.Material.NoActionBar">
+        <item name="android:windowBackground">?android:attr/colorBackground</item>
+    </style>
+
+    <!-- Nur fuer den Start des Editors: Startfenster mit Logo, solange die App laedt -->
+    <style name="StartTheme" parent="@android:style/Theme.Material.Light.NoActionBar">
+        <item name="android:windowBackground">@drawable/window_start</item>
+    </style>
+
+    <style name="StartThemeBlue" parent="@android:style/Theme.Material.Light.NoActionBar">
+        <item name="android:windowBackground">@drawable/window_start_blue</item>
+    </style>
 
     <!-- Unsichtbare Zwischenstation fuer "Teilen" -->
     <style name="ShareTheme" parent="@android:style/Theme.Translucent.NoTitleBar" />

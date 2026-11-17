@@ -1,4 +1,4 @@
-Catatan Version 3.1 - Kurzanleitung
+Catatan Version 3.3 - Kurzanleitung
 ================================
 
 WICHTIG beim ersten Update von Version 1
@@ -9,6 +9,12 @@ WICHTIG beim ersten Update von Version 1
     2. Alte App "Notiz" deinstallieren.
     3. Neue APK installieren, Text einfuegen, Widget neu auf den Homescreen ziehen.
   Ab dann gehen alle weiteren Updates direkt drueber, ohne Datenverlust.
+
+Neu in 3.3 / 3.2
+  - Startbild mit Logo: Waehrend die App noch laedt (z. B. beim Start aus dem Widget), zeigt Android jetzt
+    das goldene Logo mittig statt eines leeren Bildschirms. Geht der Start schnell, ist es kaum zu sehen.
+    Das Startbild folgt der Logo-Auswahl in den Einstellungen (ab Android 13, wirkt ab dem naechsten Start).
+    Auf Android 12 und aelter bleibt es Gold. Beim allerersten Start ist es immer Gold.
 
 Neu in 3.1
   - Zwei Logos (Gold und Blau), sauber freigestellt mit transparentem Hintergrund (Schattenreste beim goldenen Logo entfernt).
