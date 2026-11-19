@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+    <!-- Standard (erster Start): Gold auf Gelb -->
     <style name="StartTheme" parent="@android:style/Theme.Material.Light.NoActionBar">
         <item name="android:windowBackground">@drawable/window_start</item>
         <item name="android:windowSplashScreenBackground">#FFF6C8</item>
@@ -9,6 +10,136 @@
     <style name="StartThemeBlue" parent="@android:style/Theme.Material.Light.NoActionBar">
         <item name="android:windowBackground">@drawable/window_start_blue</item>
         <item name="android:windowSplashScreenBackground">#FFF6C8</item>
+        <item name="android:windowSplashScreenAnimatedIcon">@drawable/splash_icon_blue</item>
+    </style>
+
+    <!-- Startbild je Logo (G = Gold, B = Blau) und Hintergrund: 0-7 hell, 8-15 Dunkelmodus (wie in der App) -->
+    <style name="SplashG0" parent="@android:style/Theme.Material.Light.NoActionBar">
+        <item name="android:windowSplashScreenBackground">#FFF6C8</item>
+        <item name="android:windowSplashScreenAnimatedIcon">@drawable/splash_icon</item>
+    </style>
+    <style name="SplashG1" parent="@android:style/Theme.Material.Light.NoActionBar">
+        <item name="android:windowSplashScreenBackground">#FFFFFF</item>
+        <item name="android:windowSplashScreenAnimatedIcon">@drawable/splash_icon</item>
+    </style>
+    <style name="SplashG2" parent="@android:style/Theme.Material.Light.NoActionBar">
+        <item name="android:windowSplashScreenBackground">#DFF5D8</item>
+        <item name="android:windowSplashScreenAnimatedIcon">@drawable/splash_icon</item>
+    </style>
+    <style name="SplashG3" parent="@android:style/Theme.Material.Light.NoActionBar">
+        <item name="android:windowSplashScreenBackground">#D9ECFF</item>
+        <item name="android:windowSplashScreenAnimatedIcon">@drawable/splash_icon</item>
+    </style>
+    <style name="SplashG4" parent="@android:style/Theme.Material.Light.NoActionBar">
+        <item name="android:windowSplashScreenBackground">#FFE0E6</item>
+        <item name="android:windowSplashScreenAnimatedIcon">@drawable/splash_icon</item>
+    </style>
+    <style name="SplashG5" parent="@android:style/Theme.Material.Light.NoActionBar">
+        <item name="android:windowSplashScreenBackground">#E6E6E6</item>
+        <item name="android:windowSplashScreenAnimatedIcon">@drawable/splash_icon</item>
+    </style>
+    <style name="SplashG6" parent="@android:style/Theme.Material.Light.NoActionBar">
+        <item name="android:windowSplashScreenBackground">#2B2B2B</item>
+        <item name="android:windowSplashScreenAnimatedIcon">@drawable/splash_icon</item>
+    </style>
+    <style name="SplashG7" parent="@android:style/Theme.Material.Light.NoActionBar">
+        <item name="android:windowSplashScreenBackground">#000000</item>
+        <item name="android:windowSplashScreenAnimatedIcon">@drawable/splash_icon</item>
+    </style>
+    <style name="SplashG8" parent="@android:style/Theme.Material.Light.NoActionBar">
+        <item name="android:windowSplashScreenBackground">#333128</item>
+        <item name="android:windowSplashScreenAnimatedIcon">@drawable/splash_icon</item>
+    </style>
+    <style name="SplashG9" parent="@android:style/Theme.Material.Light.NoActionBar">
+        <item name="android:windowSplashScreenBackground">#333333</item>
+        <item name="android:windowSplashScreenAnimatedIcon">@drawable/splash_icon</item>
+    </style>
+    <style name="SplashG10" parent="@android:style/Theme.Material.Light.NoActionBar">
+        <item name="android:windowSplashScreenBackground">#2C312B</item>
+        <item name="android:windowSplashScreenAnimatedIcon">@drawable/splash_icon</item>
+    </style>
+    <style name="SplashG11" parent="@android:style/Theme.Material.Light.NoActionBar">
+        <item name="android:windowSplashScreenBackground">#2B2F33</item>
+        <item name="android:windowSplashScreenAnimatedIcon">@drawable/splash_icon</item>
+    </style>
+    <style name="SplashG12" parent="@android:style/Theme.Material.Light.NoActionBar">
+        <item name="android:windowSplashScreenBackground">#332C2E</item>
+        <item name="android:windowSplashScreenAnimatedIcon">@drawable/splash_icon</item>
+    </style>
+    <style name="SplashG13" parent="@android:style/Theme.Material.Light.NoActionBar">
+        <item name="android:windowSplashScreenBackground">#2E2E2E</item>
+        <item name="android:windowSplashScreenAnimatedIcon">@drawable/splash_icon</item>
+    </style>
+    <style name="SplashG14" parent="@android:style/Theme.Material.Light.NoActionBar">
+        <item name="android:windowSplashScreenBackground">#080808</item>
+        <item name="android:windowSplashScreenAnimatedIcon">@drawable/splash_icon</item>
+    </style>
+    <style name="SplashG15" parent="@android:style/Theme.Material.Light.NoActionBar">
+        <item name="android:windowSplashScreenBackground">#000000</item>
+        <item name="android:windowSplashScreenAnimatedIcon">@drawable/splash_icon</item>
+    </style>
+    <style name="SplashB0" parent="@android:style/Theme.Material.Light.NoActionBar">
+        <item name="android:windowSplashScreenBackground">#FFF6C8</item>
+        <item name="android:windowSplashScreenAnimatedIcon">@drawable/splash_icon_blue</item>
+    </style>
+    <style name="SplashB1" parent="@android:style/Theme.Material.Light.NoActionBar">
+        <item name="android:windowSplashScreenBackground">#FFFFFF</item>
+        <item name="android:windowSplashScreenAnimatedIcon">@drawable/splash_icon_blue</item>
+    </style>
+    <style name="SplashB2" parent="@android:style/Theme.Material.Light.NoActionBar">
+        <item name="android:windowSplashScreenBackground">#DFF5D8</item>
+        <item name="android:windowSplashScreenAnimatedIcon">@drawable/splash_icon_blue</item>
+    </style>
+    <style name="SplashB3" parent="@android:style/Theme.Material.Light.NoActionBar">
+        <item name="android:windowSplashScreenBackground">#D9ECFF</item>
+        <item name="android:windowSplashScreenAnimatedIcon">@drawable/splash_icon_blue</item>
+    </style>
+    <style name="SplashB4" parent="@android:style/Theme.Material.Light.NoActionBar">
+        <item name="android:windowSplashScreenBackground">#FFE0E6</item>
+        <item name="android:windowSplashScreenAnimatedIcon">@drawable/splash_icon_blue</item>
+    </style>
+    <style name="SplashB5" parent="@android:style/Theme.Material.Light.NoActionBar">
+        <item name="android:windowSplashScreenBackground">#E6E6E6</item>
+        <item name="android:windowSplashScreenAnimatedIcon">@drawable/splash_icon_blue</item>
+    </style>
+    <style name="SplashB6" parent="@android:style/Theme.Material.Light.NoActionBar">
+        <item name="android:windowSplashScreenBackground">#2B2B2B</item>
+        <item name="android:windowSplashScreenAnimatedIcon">@drawable/splash_icon_blue</item>
+    </style>
+    <style name="SplashB7" parent="@android:style/Theme.Material.Light.NoActionBar">
+        <item name="android:windowSplashScreenBackground">#000000</item>
+        <item name="android:windowSplashScreenAnimatedIcon">@drawable/splash_icon_blue</item>
+    </style>
+    <style name="SplashB8" parent="@android:style/Theme.Material.Light.NoActionBar">
+        <item name="android:windowSplashScreenBackground">#333128</item>
+        <item name="android:windowSplashScreenAnimatedIcon">@drawable/splash_icon_blue</item>
+    </style>
+    <style name="SplashB9" parent="@android:style/Theme.Material.Light.NoActionBar">
+        <item name="android:windowSplashScreenBackground">#333333</item>
+        <item name="android:windowSplashScreenAnimatedIcon">@drawable/splash_icon_blue</item>
+    </style>
+    <style name="SplashB10" parent="@android:style/Theme.Material.Light.NoActionBar">
+        <item name="android:windowSplashScreenBackground">#2C312B</item>
+        <item name="android:windowSplashScreenAnimatedIcon">@drawable/splash_icon_blue</item>
+    </style>
+    <style name="SplashB11" parent="@android:style/Theme.Material.Light.NoActionBar">
+        <item name="android:windowSplashScreenBackground">#2B2F33</item>
+        <item name="android:windowSplashScreenAnimatedIcon">@drawable/splash_icon_blue</item>
+    </style>
+    <style name="SplashB12" parent="@android:style/Theme.Material.Light.NoActionBar">
+        <item name="android:windowSplashScreenBackground">#332C2E</item>
+        <item name="android:windowSplashScreenAnimatedIcon">@drawable/splash_icon_blue</item>
+    </style>
+    <style name="SplashB13" parent="@android:style/Theme.Material.Light.NoActionBar">
+        <item name="android:windowSplashScreenBackground">#2E2E2E</item>
+        <item name="android:windowSplashScreenAnimatedIcon">@drawable/splash_icon_blue</item>
+    </style>
+    <style name="SplashB14" parent="@android:style/Theme.Material.Light.NoActionBar">
+        <item name="android:windowSplashScreenBackground">#080808</item>
+        <item name="android:windowSplashScreenAnimatedIcon">@drawable/splash_icon_blue</item>
+    </style>
+    <style name="SplashB15" parent="@android:style/Theme.Material.Light.NoActionBar">
+        <item name="android:windowSplashScreenBackground">#000000</item>
         <item name="android:windowSplashScreenAnimatedIcon">@drawable/splash_icon_blue</item>
     </style>
 </resources>

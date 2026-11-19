@@ -50,14 +50,41 @@ final class Settings {
     }
 
     /**
-     * Android 13+: Das Startbild (System-Splash) uebernimmt das gewaehlte Logo ab dem naechsten Start.
+     * Android 13+: Das Startbild (System-Splash) uebernimmt gewaehltes Logo und Hintergrundfarbe ab dem naechsten Start.
      * Auf aelteren Versionen laesst sich das Startbild nicht umstellen (dort bleibt es Gold).
      */
+    private static final int[][] SPLASH_THEMES = {
+            {R.style.SplashG0, R.style.SplashG1, R.style.SplashG2, R.style.SplashG3, R.style.SplashG4, R.style.SplashG5, R.style.SplashG6, R.style.SplashG7, R.style.SplashG8, R.style.SplashG9, R.style.SplashG10, R.style.SplashG11, R.style.SplashG12, R.style.SplashG13, R.style.SplashG14, R.style.SplashG15},
+            {R.style.SplashB0, R.style.SplashB1, R.style.SplashB2, R.style.SplashB3, R.style.SplashB4, R.style.SplashB5, R.style.SplashB6, R.style.SplashB7, R.style.SplashB8, R.style.SplashB9, R.style.SplashB10, R.style.SplashB11, R.style.SplashB12, R.style.SplashB13, R.style.SplashB14, R.style.SplashB15}
+    };
+
     static void applySplashTheme(android.app.Activity a) {
         if (android.os.Build.VERSION.SDK_INT < 33) return;
         try {
-            a.getSplashScreen().setSplashScreenTheme(
-                    logo(a) == 1 ? R.style.StartThemeBlue : R.style.StartTheme);
+            int raw = rawBgColor(a);
+            boolean dark = darkMode(a);
+            int logo = logo(a);
+            int theme = 0;
+            // 1) Farben aus der Palette: exakt passendes Startbild
+            for (int i = 0; i < Palette.BG.length; i++) {
+                if (Palette.BG[i] == raw) {
+                    theme = SPLASH_THEMES[logo][dark ? i + 8 : i];
+                    break;
+                }
+            }
+            // 2) Eigene Farbe: naechstgelegene Stufe im feinen Raster (System-Splash kann keine freie Farbe)
+            if (theme == 0) {
+                int shown = bgColor(a);
+                int levels = dark ? 3 : 5;
+                int max = dark ? 51 : 255;
+                int r = Math.round(android.graphics.Color.red(shown) * levels / (float) max);
+                int g = Math.round(android.graphics.Color.green(shown) * levels / (float) max);
+                int b = Math.round(android.graphics.Color.blue(shown) * levels / (float) max);
+                String name = "Sp" + (logo == 1 ? "B" : "G") + (dark ? "D" : "L") + r + g + b;
+                theme = a.getResources().getIdentifier(name, "style", a.getPackageName());
+            }
+            if (theme == 0) theme = logo == 1 ? R.style.StartThemeBlue : R.style.StartTheme;
+            a.getSplashScreen().setSplashScreenTheme(theme);
         } catch (Exception ignored) {
             // Startbild ist nur Zierde: Fehler hier duerfen nichts blockieren.
         }

@@ -105,4 +105,7 @@
     <string name="set_logo">Logo</string>
     <string name="logo_gold">Gold</string>
     <string name="logo_blue">Blau</string>
+    <string name="cd_undo">Rückgängig</string>
+    <string name="picker_title">Eigene Farbe</string>
+    <string name="picker_hex">Farbcode (Hex)</string>
 </resources>

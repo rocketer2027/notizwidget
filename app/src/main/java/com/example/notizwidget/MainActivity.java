@@ -51,6 +51,8 @@ public class MainActivity extends Activity {
     private EditText searchInput;
     private ImageView btnSearch;
     private ImageView btnMic;
+    private ImageView btnUndo;
+    private final UndoStack undo = new UndoStack();
     private TextView menuButton;
     private TextView[] toolButtons;
     private boolean firstLoad = true;
@@ -86,6 +88,7 @@ public class MainActivity extends Activity {
         searchInput = findViewById(R.id.search_input);
         btnSearch = findViewById(R.id.btn_search);
         btnMic = findViewById(R.id.btn_mic);
+        btnUndo = findViewById(R.id.btn_undo);
         TextView bold = findViewById(R.id.tb_bold);
         TextView italic = findViewById(R.id.tb_italic);
         TextView underline = findViewById(R.id.tb_underline);
@@ -102,6 +105,8 @@ public class MainActivity extends Activity {
         menuButton.setOnClickListener(this::showMenu);
         btnSearch.setOnClickListener(v -> toggleSearch());
         btnMic.setOnClickListener(v -> startDictation());
+        btnUndo.setOnClickListener(v -> undoLast());
+        updateUndoState();
         findViewById(R.id.search_next).setOnClickListener(v -> findNext(true));
         findViewById(R.id.search_prev).setOnClickListener(v -> findNext(false));
         findViewById(R.id.search_close).setOnClickListener(v -> toggleSearch());
@@ -116,7 +121,12 @@ public class MainActivity extends Activity {
         // bei dem Text, den man markiert und formatiert hat.
         editor.addTextChangedListener(new TextWatcher() {
             @Override
-            public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+                if (suppressWatch) return;
+                // Stand vor der Aenderung fuer "Rueckgaengig" merken (Tippen wird zusammengefasst).
+                undo.beforeChange(s, editor.getSelectionStart(), editor.getSelectionEnd(), count, after);
+                updateUndoState();
+            }
 
             @Override
             public void onTextChanged(CharSequence s, int start, int before, int count) {
@@ -168,7 +178,8 @@ public class MainActivity extends Activity {
         String stored = NoteStore.loadRaw(this);
         if (!NoteStore.serialize(editor.getText()).equals(stored)) {
             int oldSel = editor.getSelectionStart();
-            setNote(NoteStore.deserialize(stored));
+            if (firstLoad) setNote(NoteStore.deserialize(stored));
+            else setNoteUndoable(NoteStore.deserialize(stored)); // z. B. durch "Teilen" angehaengter Text
             int len = editor.getText().length();
             editor.setSelection(firstLoad || oldSel < 0 ? len : Math.min(oldSel, len));
         }
@@ -208,6 +219,8 @@ public class MainActivity extends Activity {
         lastEdit.setTextColor(fg);
         btnSearch.setColorFilter(fg);
         btnMic.setColorFilter(fg);
+        btnUndo.setColorFilter(fg);
+        updateUndoState();
         searchInput.setTextColor(fg);
         searchInput.setHintTextColor((fg & 0x00FFFFFF) | 0x80000000);
         for (int id : new int[]{R.id.search_prev, R.id.search_next, R.id.search_close})
@@ -251,22 +264,29 @@ public class MainActivity extends Activity {
         final Editable e = editor.getText();
         switch (kind) {
             case 0:
+                pushUndo();
                 TextFormat.toggleStyle(e, start, end, Typeface.BOLD);
                 break;
             case 1:
+                pushUndo();
                 TextFormat.toggleStyle(e, start, end, Typeface.ITALIC);
                 break;
             case 2:
+                pushUndo();
                 TextFormat.toggleUnderline(e, start, end);
                 break;
             case 3:
                 pickSize(sz -> {
+                    pushUndo();
                     TextFormat.setSize(e, start, end, sz / (float) BASE_SIZE);
                     updateToolState();
                 });
                 break;
             default:
-                Palette.pickTextColor(this, color -> TextFormat.setColor(e, start, end, color));
+                Palette.pickTextColor(this, color -> {
+                    pushUndo();
+                    TextFormat.setColor(e, start, end, color);
+                });
                 break;
         }
     }
@@ -585,7 +605,7 @@ public class MainActivity extends Activity {
         new AlertDialog.Builder(this)
                 .setTitle(getString(R.string.history_title))
                 .setItems(labels, (d, which) -> {
-                    setNote(NoteStore.deserialize(list.get(which).raw));
+                    setNoteUndoable(NoteStore.deserialize(list.get(which).raw));
                     editor.setSelection(editor.getText().length());
                     NoteStore.save(this, editor.getText());
                     toast(getString(R.string.restored));
@@ -638,7 +658,7 @@ public class MainActivity extends Activity {
                     .setMessage(getString(R.string.restore_message))
                     .setPositiveButton(getString(R.string.restore_ok), (d, w) -> {
                         NoteStore.save(this, editor.getText());
-                        setNote(imported);
+                        setNoteUndoable(imported);
                         editor.setSelection(editor.getText().length());
                         NoteStore.save(this, editor.getText());
                         toast(getString(R.string.restore_done));
@@ -646,6 +666,44 @@ public class MainActivity extends Activity {
                     .setNegativeButton(getString(R.string.cancel), null)
                     .show();
         }
+    }
+
+    // ---------- Rueckgaengig ----------
+
+    /** Merkt den aktuellen Stand als eigenen Schritt (vor Formatierung oder Ersetzen der Notiz). */
+    private void pushUndo() {
+        undo.push(editor.getText(), editor.getSelectionStart(), editor.getSelectionEnd());
+        updateUndoState();
+    }
+
+    /** Ersetzt die ganze Notiz so, dass man es mit "Rueckgaengig" wieder zuruecknehmen kann. */
+    private void setNoteUndoable(CharSequence content) {
+        pushUndo();
+        setNote(content);
+    }
+
+    /** Nimmt die letzte Aktion zurueck (bis zu 30 Schritte). */
+    private void undoLast() {
+        UndoStack.Step step = undo.pop();
+        if (step == null) {
+            updateUndoState();
+            return;
+        }
+        setNote(NoteStore.deserialize(step.raw));
+        int len = editor.getText().length();
+        int a = Math.max(0, Math.min(step.selStart, len));
+        int b = Math.max(0, Math.min(step.selEnd, len));
+        editor.setSelection(Math.min(a, b), Math.max(a, b));
+        showLastEdit(System.currentTimeMillis());
+        NoteStore.save(this, editor.getText());
+        updateUndoState();
+    }
+
+    private void updateUndoState() {
+        if (btnUndo == null) return;
+        boolean can = undo.canUndo();
+        btnUndo.setEnabled(can);
+        btnUndo.setAlpha(can ? 1f : 0.3f);
     }
 
     /** Setzt den Notiztext, ohne dass die Formatierungs-Regel fuer neue Zeilen eingreift. */

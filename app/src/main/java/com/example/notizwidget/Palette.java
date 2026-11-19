@@ -68,6 +68,23 @@ final class Palette {
         return v;
     }
 
+    /** Runder Regenbogen-Punkt: oeffnet die freie Farbwahl. */
+    static View rainbowSwatch(Context c, int sizeDp, boolean selected, View.OnClickListener l) {
+        View v = new View(c);
+        GradientDrawable d = new GradientDrawable();
+        d.setShape(GradientDrawable.OVAL);
+        d.setGradientType(GradientDrawable.SWEEP_GRADIENT);
+        d.setColors(new int[]{0xFFFF0000, 0xFFFFFF00, 0xFF00FF00, 0xFF00FFFF, 0xFF0000FF, 0xFFFF00FF, 0xFFFF0000});
+        d.setStroke(dp(c, selected ? 3 : 1), selected ? 0xFF1E88E5 : 0x66000000);
+        v.setBackground(d);
+        LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(dp(c, sizeDp), dp(c, sizeDp));
+        lp.setMargins(dp(c, 6), dp(c, 6), dp(c, 6), dp(c, 6));
+        v.setLayoutParams(lp);
+        v.setOnClickListener(l);
+        v.setContentDescription(c.getString(R.string.picker_title));
+        return v;
+    }
+
     /** Kleiner Dialog mit Farbpunkten fuer die Textfarbe. */
     static void pickTextColor(Activity a, final ColorCallback cb) {
         HorizontalScrollView sv = new HorizontalScrollView(a);

@@ -1,4 +1,4 @@
-Catatan Version 3.3 - Kurzanleitung
+Catatan Version 3.6 - Kurzanleitung
 ================================
 
 WICHTIG beim ersten Update von Version 1
@@ -9,6 +9,25 @@ WICHTIG beim ersten Update von Version 1
     2. Alte App "Notiz" deinstallieren.
     3. Neue APK installieren, Text einfuegen, Widget neu auf den Homescreen ziehen.
   Ab dann gehen alle weiteren Updates direkt drueber, ohne Datenverlust.
+
+Neu in 3.6
+  - Freie Hintergrundfarbe: Einstellungen -> Hintergrund -> Regenbogen-Punkt. Farbfeld mit Fadenkreuz
+    (Saettigung/Helligkeit), Farbband (Farbton) und Hex-Farbcode zum genauen Eintippen. Die gewaehlte eigene
+    Farbe erscheint danach als eigener Punkt in der Reihe.
+  - Splash/Startbild: Farben aus der Palette passen exakt. Bei eigenen Farben nimmt das Startbild die
+    naechstgelegene Stufe eines feinen Farbrasters (Android erlaubt dort keine freie Farbe), ab Android 13.
+    Der Splash beim allerersten Start und alle Flaechen in der App nutzen immer die exakte Farbe.
+
+Neu in 3.5
+  - Das Startbild uebernimmt jetzt auch die Hintergrundfarbe aus den Einstellungen (inkl. Dunkelmodus),
+    zusammen mit dem gewaehlten Logo. Ab Android 13, wirkt ab dem naechsten Start. Auf Android 12 und aelter
+    bleibt das Startbild Gold auf Gelb. Der Splash beim allerersten Start nutzt ohnehin die eingestellte Farbe.
+
+Neu in 3.4
+  - Rueckgaengig-Knopf (Pfeil) oben links neben der Lupe. Nimmt die letzten 30 Aktionen schrittweise zurueck:
+    Tippen/Loeschen (zusammengefasst, solange man weiterschreibt), Einfuegen, Diktat, Formatierung und
+    Wiederherstellen aus dem Verlauf bzw. aus einer Sicherung. Ist nichts mehr zurueckzunehmen, ist der Pfeil blass.
+    Der Rueckgaengig-Verlauf gilt fuer die laufende Sitzung; nach einem Neustart der App beginnt er neu.
 
 Neu in 3.3 / 3.2
   - Startbild mit Logo: Waehrend die App noch laedt (z. B. beim Start aus dem Widget), zeigt Android jetzt

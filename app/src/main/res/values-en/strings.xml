@@ -100,4 +100,7 @@
     <string name="set_logo">Logo</string>
     <string name="logo_gold">Gold</string>
     <string name="logo_blue">Blue</string>
+    <string name="cd_undo">Undo</string>
+    <string name="picker_title">Custom colour</string>
+    <string name="picker_hex">Colour code (hex)</string>
 </resources>

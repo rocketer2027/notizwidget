@@ -138,6 +138,7 @@ public class SettingsActivity extends Activity {
 
         switchDark.setOnCheckedChangeListener((button, checked) -> {
             Settings.setDarkMode(this, checked);
+            Settings.applySplashTheme(this);
             NoteWidget.updateAll(this);
             recreate();
         });
@@ -209,17 +210,28 @@ public class SettingsActivity extends Activity {
 
     private void buildSwatches() {
         swatchRow.removeAllViews();
-        int current = Settings.rawBgColor(this);
+        final int current = Settings.rawBgColor(this);
+        boolean inPalette = false;
+        for (int c : Palette.BG) if (c == current) inPalette = true;
         for (final int color : Palette.BG) {
-            swatchRow.addView(Palette.swatch(this, color, color == current, 44, new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    Settings.setBgColor(SettingsActivity.this, color);
-                    buildSwatches();
-                    updatePreview();
-                }
-            }));
+            swatchRow.addView(Palette.swatch(this, color, color == current, 44, v -> chooseBackground(color)));
         }
+        // eigene Farbe: wird als gewaehlter Punkt angezeigt, danach der Regenbogen-Punkt fuer die freie Wahl
+        if (!inPalette) {
+            swatchRow.addView(Palette.swatch(this, current, true, 44, v -> openPicker(current)));
+        }
+        swatchRow.addView(Palette.rainbowSwatch(this, 44, false, v -> openPicker(current)));
+    }
+
+    private void chooseBackground(int color) {
+        Settings.setBgColor(this, color);
+        Settings.applySplashTheme(this);
+        buildSwatches();
+        updatePreview();
+    }
+
+    private void openPicker(int start) {
+        ColorPickerDialog.show(this, start, this::chooseBackground);
     }
 
     /** Zwei Logos zum Antippen; das gewaehlte bekommt einen Rahmen. */

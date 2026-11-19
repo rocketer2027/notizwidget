@@ -100,4 +100,7 @@
     <string name="set_logo">Logo</string>
     <string name="logo_gold">Emas</string>
     <string name="logo_blue">Biru</string>
+    <string name="cd_undo">Urungkan</string>
+    <string name="picker_title">Warna sendiri</string>
+    <string name="picker_hex">Kode warna (hex)</string>
 </resources>
